@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.get("/", (_, res): RequestHandler => {
-  return res.send('hello world') as any;
+  return res.send('as many as u see') as any;
 });
 
 app.listen(PORT, () => {
