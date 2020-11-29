@@ -19,7 +19,7 @@ const app = express();
 // MIDDLEWARE
 app.use(cors());
 app.use(bodyParser.json());
-app.use(session({secret: `${process.env.SESSION_SECRET}`, resave: false, saveUninitialized: false}));
+app.use(session({secret: `${process.env.SESSION_SECRET}`, cookie:{maxAge: 1000*60*60*24*7 }, resave: false, saveUninitialized: false}));
 app.use(passport.initialize());
 app.use(passport.session());
 

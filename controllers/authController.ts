@@ -24,7 +24,11 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       if (err) { 
         throw new ServerError(err.message, 401);
       }
-      return res.send({success: true, user: {email, id: user.id}});
+
+      const timeNow = new Date().getTime();
+      const maxCookieAge = new Date(timeNow + 1000 * 60 * 60 * 24 * 7) // 7 days;
+
+      return res.send({success: true, maxCookieAge, user: {email, id: user.id}});
     });
 
 } catch(err) {

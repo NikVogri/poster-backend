@@ -1,7 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../helpers/database';
 import { User as UserInterface } from '../interfaces/userInterface';
-import Post from './Post';
 
 
 interface UserCreationAttributes extends Optional<UserInterface, "id"> {}
