@@ -5,6 +5,7 @@ import checkAuth from '../middleware/checkAuth';
 
 router.get('/', postController.getAll);
 router.post('/', checkAuth, postController.create);
+router.delete('/:postId', checkAuth, postController.remove);
 
 
 export default router;
