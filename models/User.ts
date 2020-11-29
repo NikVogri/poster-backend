@@ -1,10 +1,11 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../helpers/database';
-import { User } from '../interfaces/userInterface';
+import { User as UserInterface } from '../interfaces/userInterface';
+import Post from './Post';
 
 
-interface UserCreationAttributes extends Optional<User, "id"> {}
-interface UserInstance extends Model<User, UserCreationAttributes>, User {};
+interface UserCreationAttributes extends Optional<UserInterface, "id"> {}
+interface UserInstance extends Model<UserInterface, UserCreationAttributes>, UserInterface {};
 
 const User = sequelize.define<UserInstance>('User', {
   email: {
@@ -23,7 +24,6 @@ const User = sequelize.define<UserInstance>('User', {
     unique: false,
   },
 });
-
 
 // runs this if table does not exist else does nothing
 User.sync();

@@ -7,12 +7,12 @@ import { PassportStatic } from 'passport';
 const initializePassport = (passport: PassportStatic) => {
   passport.use(new LocalStrategy.Strategy({usernameField: 'email'}, authUser));
 
-  passport.serializeUser((email: UserInterface, done: Function) => {
+  passport.serializeUser((email: string, done: Function) => {
     done(null, email);
   });
 
-  passport.deserializeUser((email: UserInterface, done: Function) => {
-      done(null, email);
+  passport.deserializeUser((email: string, done: Function) => {
+    done(null, email);
   });
 }
 
@@ -24,7 +24,7 @@ const authUser = async (email: string, password: string, done: any) => {
         return done(null, false, { message: ' Invalid email and password combination' });
       }
 
-      return done(null, {...user});
+      return done(null, user);
     } catch(err) {
       return done(null, false, { message: err.message });
     }

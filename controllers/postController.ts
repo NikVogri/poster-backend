@@ -1,27 +1,34 @@
 import { Response, Request, NextFunction } from 'express';
-import { Model } from 'sequelize';
-import { PostInterface } from '../interfaces/postInterface';
+import ServerError from '../helpers/errorHandler';
+import { Post as PostInterface } from '../interfaces/postInterface';
+import { User } from '../interfaces/userInterface';
 import Post from '../models/Post';
 
 export const getAll = async (_: Request, res: Response) => {
-  const posts = await Post.findAll() as Model <PostInterface>[];
+  const posts = await Post.findAll() as PostInterface[];
  return res.send({
     success: true,
     posts
   }) as any;
 };
 
-export const create = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-  const post: PostInterface = {...req.body};
+export const create = async (req: Request, res: Response, next: NextFunction)=> {
+  try { 
+    if (req.user) {
+      const {id} = req.user as User;
+      const post = await Post.create({...req.body, UserId: id});
+      
+      return res.send({
+        success: true,
+        post
+      }) as any;
 
-  try {
-   await Post.create(post);
+    } else {
+      throw new ServerError();
+    }
+
   } catch(err) {
    return next(err);
   }
-  
-  return res.send({
-    success: true,
-    post
-  }) as any;
+
 };

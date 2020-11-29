@@ -1,7 +1,12 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Model, Optional } from 'sequelize';
+import {Post as PostInterface} from '../interfaces/postInterface';
 import sequelize from '../helpers/database';
+import User from './User';
 
-const Post = sequelize.define('Post', {
+interface PostCreationAttributes extends Optional<PostInterface, "id"> {}
+interface PostInstance extends Model<PostInterface, PostCreationAttributes>, PostInterface {};
+
+const Post = sequelize.define<PostInstance>('Post', {
   title: {
     type: DataTypes.STRING,
     allowNull: false
@@ -12,6 +17,9 @@ const Post = sequelize.define('Post', {
   }
 });
  
+Post.belongsTo(User);
+User.hasMany(Post);
+
 // runs this if table does not exist else does nothing
 Post.sync();
 

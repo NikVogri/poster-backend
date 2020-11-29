@@ -24,7 +24,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       if (err) { 
         throw new ServerError(err.message, 401);
       }
-      return res.send({success: true, user: {email}});
+      return res.send({success: true, user: {email, id: user.id}});
     });
 
 } catch(err) {
