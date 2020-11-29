@@ -3,6 +3,7 @@ import ServerError from '../helpers/errorHandler';
 import bcrypt from 'bcrypt';
 import User from "../models/User";
 import passport from "passport";
+import generateUniqueSlug from "../helpers/generateSlug";
 
 
 const SALT_ROUNDS = 10;
@@ -47,7 +48,6 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
 
       // validate that user with that email does not yet exist
       const users = await User.findAll({where: {email}});
-
       if (users.length > 0) {
         throw new ServerError('User with that email address already exists', 400);
       }
@@ -56,11 +56,13 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
 
       // store new user in database
-      await User.create({email, username, password: hashedPassword});
+      const slug = await generateUniqueSlug(username);
+      await User.create({email, username, password: hashedPassword, slug});
 
       return res.status(201).send({sucess: true});
 
     } catch(err) {
+      console.log(err)
       return next(err);
     }
 }

@@ -34,6 +34,7 @@
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.3.5",
     "session": "^0.1.0",
+    "slugify": "^1.4.6",
     "ts-node": "^9.0.0"
   },
   "devDependencies": {

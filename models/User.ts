@@ -22,6 +22,11 @@ const User = sequelize.define<UserInstance>('User', {
     allowNull: false,
     unique: false,
   },
+  slug: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  }
 });
 
 // runs this if table does not exist else does nothing
