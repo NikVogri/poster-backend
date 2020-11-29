@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt';
 import User from "../models/User";
 import passport from "passport";
 import generateUniqueSlug from "../helpers/generateSlug";
+import {User as UserInterface} from '../interfaces/userInterface';
+import passwordValidator from "../helpers/passwordValidator";
 
 
 const SALT_ROUNDS = 10;
@@ -71,3 +73,30 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
   req.logout();
   res.status(200).send({success: true});
 };
+
+
+export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
+  const {id} = req.user as UserInterface;
+  const { password, newPassword } = req.body;
+ try {
+   const user = await User.findOne({where: {id}});
+
+   if (!user) {
+      throw new ServerError();
+   }
+
+   if (!passwordValidator(password, user.password)) {
+     throw new ServerError('Old password is incorrect', 400);
+   }
+
+   const hashedPassword = bcrypt.hashSync(newPassword, SALT_ROUNDS);
+   await user.update({password: hashedPassword});
+
+   res.status(200).send({success: true, msg: 'Password changed successfully'});
+ } catch(err) {
+   console.log(err)
+   return next(err);
+ }
+
+  
+}

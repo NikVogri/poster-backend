@@ -11,7 +11,7 @@ const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
       throw new ServerError();
     }
 
-    req.user = user;
+    req.user = user as UserInterface;
     next();
   } else {
     res.status(403).send({success: false, msg: 'Not Allowed'});
