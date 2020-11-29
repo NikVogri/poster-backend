@@ -42,12 +42,6 @@ export const remove = async (req: Request, res: Response, next: NextFunction) =>
       throw new ServerError('Provide id for post to be deleted', 400);
     }
 
-    const post: PostInterface | null = await Post.findOne({where: {id: postId}});
-
-    if (!post) {
-      throw new ServerError('No post with that id could be found', 400);
-    }
-
     await Post.destroy({where: {id: postId}});
 
     res.send({success: true});
