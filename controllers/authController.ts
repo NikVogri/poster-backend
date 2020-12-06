@@ -36,7 +36,7 @@ export const loginUser = async (
         return res.send({
           success: true,
           maxCookieAge,
-          user: { email, id: user.id },
+          user: { email, id: user.id, username: user.username },
         });
       });
     } catch (err) {

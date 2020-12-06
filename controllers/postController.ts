@@ -1,52 +1,62 @@
-import { Response, Request, NextFunction } from 'express';
-import ServerError from '../helpers/errorHandler';
-import { Post as PostInterface } from '../interfaces/postInterface';
-import { User as UserInterface } from '../interfaces/userInterface';
-import Post from '../models/Post';
-import User from '../models/User';
+import { Response, Request, NextFunction } from "express";
+import ServerError from "../helpers/errorHandler";
+import { Post as PostInterface } from "../interfaces/postInterface";
+import { User as UserInterface } from "../interfaces/userInterface";
+import Post from "../models/Post";
+import User from "../models/User";
 
 export const getAll = async (_: Request, res: Response) => {
-  const posts = await Post.findAll({include: {model: User, attributes: ['username', 'id']} }) as PostInterface[];
- return res.send({
+  const posts = (await Post.findAll({
+    order: [["createdAt", "DESC"]],
+    include: {
+      model: User,
+      attributes: ["username", "id"],
+    },
+  })) as PostInterface[];
+  return res.send({
     success: true,
-    posts
+    posts,
   }) as any;
 };
 
-export const create = async (req: Request, res: Response, next: NextFunction) => {
-  try { 
+export const create = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
     if (req.user) {
-      const {id} = req.user as UserInterface;
-      const post = await Post.create({...req.body, UserId: id});
-      
+      const { id } = req.user as UserInterface;
+      const post = await Post.create({ ...req.body, UserId: id });
+
       return res.send({
         success: true,
-        post
+        post,
       }) as any;
-
     } else {
       throw new ServerError();
     }
-
-  } catch(err) {
-   return next(err);
+  } catch (err) {
+    return next(err);
   }
 };
 
-
-export const remove = async (req: Request, res: Response, next: NextFunction) => {
+export const remove = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const {postId} = req.params;
+    const { postId } = req.params;
 
     if (!postId) {
-      throw new ServerError('Provide id for post to be deleted', 400);
+      throw new ServerError("Provide id for post to be deleted", 400);
     }
 
-    await Post.destroy({where: {id: postId}});
+    await Post.destroy({ where: { id: postId } });
 
-    res.send({success: true});
-
-  } catch(err) {
+    res.send({ success: true });
+  } catch (err) {
     return next(err);
   }
 };
