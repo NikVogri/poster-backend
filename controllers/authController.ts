@@ -3,7 +3,7 @@ import ServerError from "../helpers/errorHandler";
 import bcrypt from "bcrypt";
 import User from "../models/User";
 import passport from "passport";
-import generateUniqueSlug from "../helpers/generateSlug";
+import { generateUsernameSlug } from "../helpers/generateSlug";
 import { User as UserInterface } from "../interfaces/userInterface";
 import passwordValidator from "../helpers/passwordValidator";
 
@@ -70,7 +70,7 @@ export const registerUser = async (
     const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
 
     // store new user in database
-    const slug = await generateUniqueSlug(username);
+    const slug = await generateUsernameSlug(username);
     await User.create({ email, username, password: hashedPassword, slug });
 
     return res.status(201).send({ sucess: true });
@@ -126,7 +126,7 @@ export const me = (req: Request, res: Response) => {
     success: true,
     user: {
       email: user.email,
-      id: user.email,
+      id: user.id,
       username: user.username,
     },
   });
