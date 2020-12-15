@@ -22,6 +22,10 @@ const Post = sequelize.define<PostInstance>("Post", {
     allowNull: false,
     unique: true,
   },
+  deleted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
 });
 
 Post.belongsTo(User);

@@ -6,4 +6,5 @@ export interface Post {
   UserId?: string;
   createdAt?: string;
   updatedAt?: string;
+  deleted?: boolean;
 }

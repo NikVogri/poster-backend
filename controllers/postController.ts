@@ -8,6 +8,7 @@ import User from "../models/User";
 
 export const getAll = async (_: Request, res: Response) => {
   const posts = (await Post.findAll({
+    where: { deleted: false },
     order: [["createdAt", "DESC"]],
     include: {
       model: User,
@@ -60,13 +61,13 @@ export const remove = async (
   next: NextFunction
 ) => {
   try {
-    const { postId } = req.params;
+    const { slug } = req.params;
 
-    if (!postId) {
+    if (!slug) {
       throw new ServerError("Provide id for post to be deleted", 400);
     }
 
-    await Post.destroy({ where: { id: postId } });
+    await Post.update({ deleted: true }, { where: { slug } });
 
     res.send({ success: true });
   } catch (err) {
