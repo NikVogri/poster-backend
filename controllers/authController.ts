@@ -2,10 +2,19 @@ import { NextFunction, Request, Response } from "express";
 import ServerError from "../helpers/errorHandler";
 import bcrypt from "bcrypt";
 import User from "../models/User";
-import passport from "passport";
 import { generateUsernameSlug } from "../helpers/generateSlug";
-import { User as UserInterface } from "../interfaces/userInterface";
 import passwordValidator from "../helpers/passwordValidator";
+import { User as UserInterface } from "../interfaces/userInterface";
+
+declare module "express-session" {
+  interface Session {
+    email: string;
+  }
+}
+
+interface UserRequest extends Request {
+  user: UserInterface;
+}
 
 const SALT_ROUNDS = 10;
 
@@ -15,34 +24,19 @@ export const loginUser = async (
   next: NextFunction
 ) => {
   const { email, password } = req.body;
-  passport.authenticate("local", function (err, user) {
-    try {
-      if (err) {
-        throw new ServerError(err.message, 401);
-      }
+  const user = await User.findOne({ where: { email } });
 
-      if (!user) {
-        throw new ServerError("Invalid email and password combination", 401);
-      }
+  if (!user) {
+    throw new ServerError("Invalid email and password combination", 401);
+  }
 
-      req.logIn(email, password, function (err) {
-        if (err) {
-          throw new ServerError(err.message, 401);
-        }
+  if (!bcrypt.compareSync(password, user.password)) {
+    throw new ServerError("Invalid password", 400);
+  }
 
-        const timeNow = new Date().getTime();
-        const maxCookieAge = new Date(timeNow + 1000 * 60 * 60 * 24 * 7); // 7 days;
+  req.session.email = user.email;
 
-        return res.send({
-          success: true,
-          maxCookieAge,
-          user: { email, id: user.id, username: user.username },
-        });
-      });
-    } catch (err) {
-      return next(err);
-    }
-  })(req, res, next);
+  res.send({ success: true, user });
 };
 
 export const registerUser = async (
@@ -85,16 +79,21 @@ export const logoutUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  req.logout();
-  res.status(200).send({ success: true });
+  req.session.destroy((err) => {
+    if (err) {
+      console.log(err);
+      throw new ServerError("Something went wrong", 500);
+    }
+    res.status(200).send({ success: true });
+  });
 };
 
 export const changePassword = async (
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.user as UserInterface;
+  const { id } = req.user;
   const { password, newPassword } = req.body;
   try {
     const user = await User.findOne({ where: { id } });
@@ -119,8 +118,8 @@ export const changePassword = async (
   }
 };
 
-export const me = (req: Request, res: Response) => {
-  const user = req.user as UserInterface;
+export const me = (req: UserRequest, res: Response) => {
+  const user = req.user;
 
   res.status(200).send({
     success: true,

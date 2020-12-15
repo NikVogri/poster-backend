@@ -3,19 +3,39 @@ import ServerError from "../helpers/errorHandler";
 import { User as UserInterface } from "../interfaces/userInterface";
 import User from "../models/User";
 
-const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
-  if (req.isAuthenticated()) {
-    const user: UserInterface | any = await User.findOne({where: {email: req.user}});
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: UserInterface;
+  }
+}
+
+interface UserRequest extends Request {
+  user?: UserInterface;
+}
+
+const checkAuth = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email } = req.session as any;
+
+  console.log(req.session);
+
+  if (email) {
+    const user: UserInterface | any = await User.findOne({
+      where: { email },
+    });
 
     if (!user) {
       throw new ServerError();
     }
 
-    req.user = user as UserInterface;
+    req.user = user;
     next();
   } else {
-    res.status(403).send({success: false, msg: 'Not Allowed'});
+    res.status(403).send({ success: false, msg: "Not Allowed" });
   }
-}
+};
 
 export default checkAuth;
