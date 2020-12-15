@@ -38,7 +38,8 @@ app.use(
   (
     err: { errors?: any[]; message?: string; statusCode?: number },
     _: Request,
-    res: Response
+    res: Response,
+    _2: any
   ) => {
     let error = {
       code: 500,
@@ -58,6 +59,8 @@ app.use(
       error.code = 400;
       error.errorMessage = "Please specify all the required fields";
     }
+
+    console.log(error);
 
     return res
       .status(error.code)
