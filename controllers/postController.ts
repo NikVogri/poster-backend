@@ -1,7 +1,7 @@
-import { Response, Request, NextFunction } from "express";
+import { Response, NextFunction, Request } from "express";
 import ServerError from "../helpers/errorHandler";
 import { Post as PostInterface } from "../interfaces/postInterface";
-import { User as UserInterface } from "../interfaces/userInterface";
+import { UserRequest } from "../interfaces/expressInterface";
 import { generatePostSlug } from "../helpers/generateSlug";
 import Post from "../models/Post";
 import User from "../models/User";
@@ -21,23 +21,30 @@ export const getAll = async (_: Request, res: Response) => {
 };
 
 export const create = async (
-  req: Request,
+  req: UserRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
     if (req.user) {
-      const { id } = req.user as UserInterface;
+      const { id } = req.user;
+      const { title, content } = req.body as any;
+
+      if (!title || !content) {
+        throw new ServerError("Please provide title and content", 400);
+      }
+
       const post = await Post.create({
-        ...req.body,
-        UserId: id,
-        slug: await generatePostSlug(req.body.title),
+        title,
+        content,
+        UserId: `${id}`,
+        slug: await generatePostSlug(title),
       });
 
       return res.send({
         success: true,
         post,
-      }) as any;
+      });
     } else {
       throw new ServerError();
     }

@@ -1,17 +1,9 @@
-import express, {
-  Request,
-  Response,
-  NextFunction,
-  RequestHandler,
-} from "express";
+import express, { Request, Response, RequestHandler } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import session from "express-session";
 import sequelize from "./helpers/database";
-
-import initializePassport from "./config/passport";
-
-import passport from "passport";
 
 // routers
 import postsRouter from "./routes/postsRouter";
@@ -21,21 +13,21 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 
+if (!process.env.SESSION_SECRET) {
+  throw new Error("Provide session secret");
+}
 // MIDDLEWARE
 app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(
   session({
-    secret: `${process.env.SESSION_SECRET}`,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7, sameSite: "lax" },
     resave: false,
     saveUninitialized: false,
+    secret: process.env.SESSION_SECRET,
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
-
-initializePassport(passport);
 
 //ROUTERS
 app.use("/api/v1/posts", postsRouter);
@@ -46,8 +38,7 @@ app.use(
   (
     err: { errors?: any[]; message?: string; statusCode?: number },
     _: Request,
-    res: Response,
-    _2: NextFunction
+    res: Response
   ) => {
     let error = {
       code: 500,

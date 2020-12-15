@@ -5,8 +5,8 @@ import checkAuth from "../middleware/checkAuth";
 import isOwner from "../middleware/isOwner";
 
 router.get("/", postController.getAll);
-router.post("/", checkAuth, postController.create);
-router.delete("/:postId", checkAuth, isOwner, postController.remove);
+router.post("/", checkAuth, postController.create as any);
+router.delete("/:postId", checkAuth, isOwner as any, postController.remove);
 router.get("/:slug", postController.getSingle);
 
 export default router;
