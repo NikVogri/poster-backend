@@ -1,4 +1,5 @@
 import { NextFunction, Response, Request } from "express";
+import ServerError from "../helpers/errorHandler";
 // import { UserRequest } from "../interfaces/expressInterface";
 import { Post as PostInterface } from "../interfaces/postInterface";
 import { User } from "../interfaces/userInterface";
@@ -10,9 +11,9 @@ interface UserRequest extends Request {
 
 const isOwner = async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const { postId } = req.params;
+    const { slug } = req.params;
     const post: PostInterface | null = await Post.findOne({
-      where: { id: postId },
+      where: { slug },
     });
     const { id: userId } = req.user;
 
@@ -28,9 +29,7 @@ const isOwner = async (req: UserRequest, res: Response, next: NextFunction) => {
 
     next();
   } catch (err) {
-    return res
-      .status(500)
-      .send({ success: false, msg: "Something went wrong" });
+    throw new ServerError(err);
   }
 };
 
