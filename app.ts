@@ -16,6 +16,16 @@ const app = express();
 if (!process.env.SESSION_SECRET) {
   throw new Error("Provide session secret");
 }
+
+if (
+  !process.env.EMAIL_HOST ||
+  !process.env.EMAIL_PORT ||
+  !process.env.EMAIL_USER ||
+  !process.env.EMAIL_PASSWORD
+) {
+  throw new Error("Provide email provider host, port, user and password");
+}
+
 // MIDDLEWARE
 app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
 app.use(bodyParser.json());
