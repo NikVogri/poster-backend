@@ -5,6 +5,9 @@ import User from "../models/User";
 import { generateUsernameSlug } from "../helpers/generateSlug";
 import passwordValidator from "../helpers/passwordValidator";
 import { User as UserInterface } from "../interfaces/userInterface";
+import ForgotPassword from "../models/ForgotPassword";
+import { generateUniqueToken } from "../helpers/token";
+import { sendEmail } from "../helpers/email";
 
 declare module "express-session" {
   interface Session {
@@ -133,4 +136,91 @@ export const me = (req: UserRequest, res: Response) => {
       username: user.username,
     },
   });
+};
+
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new ServerError("Please provide an email address", 400);
+    }
+
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      throw new ServerError("No user found with that email address", 400);
+    }
+
+    const olderToken = await ForgotPassword.findOne({
+      where: { UserId: user.id },
+    });
+
+    if (olderToken) {
+      await olderToken.destroy();
+    }
+
+    const token = await generateUniqueToken();
+
+    await ForgotPassword.create({
+      UserId: user.id,
+      token,
+    });
+
+    const message = `
+    <h1>Your password reset</h1>
+    <hr>
+    <p>If you didn't request a password reset, please ignore this message. Otherwise click the link to reset your password.</p>
+    <a style="margin-top: 30px;" href="${process.env.FRONTEND_URL}/reset-password/${token}">
+      Reset your password
+    </a>
+    `;
+
+    await sendEmail(user.email, "Password reset", message);
+
+    res.send({ success: true, msg: "Email sent" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { password, token } = req.body;
+
+    if (!password || !token) {
+      throw new ServerError("Please provide password and token", 400);
+    }
+
+    const userToken = await ForgotPassword.findOne({
+      where: { token },
+    });
+
+    if (!userToken) {
+      throw new ServerError("Invalid token provided", 400);
+    }
+
+    const user = await User.findOne({ where: { id: userToken.UserId } });
+
+    if (!user) {
+      throw new ServerError();
+    }
+
+    const newHashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
+    user.update({ password: newHashedPassword });
+    await user.save();
+    await userToken.destroy();
+
+    res.send({ success: true, msg: "Password changed" });
+  } catch (err) {
+    next(err);
+  }
 };

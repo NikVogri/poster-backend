@@ -11,6 +11,9 @@ router.post("/logout", auth.logoutUser);
 router.post("/change-password", checkAuth, auth.changePassword as any);
 router.get("/me", checkAuth, auth.me as any);
 
+router.post("/forgot-password", auth.forgotPassword);
+router.post("/reset-password", auth.resetPassword);
+
 // router.post('/forgot-password');
 
 export default router;
