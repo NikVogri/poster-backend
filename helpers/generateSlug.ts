@@ -11,8 +11,10 @@ export const generateUsernameSlug = async (
   let usernameSlug = slugify(username, { lower: true, strict: true });
 
   const users: UserInterface[] | [] = await User.findAll({
-    where: { username: { [Op.like]: `${usernameSlug}%` } },
+    where: { slug: { [Op.like]: `${usernameSlug}%` } },
   });
+
+  console.log("USERS", users);
 
   if (users.length > 0) {
     usernameSlug += `-${users.length}`;

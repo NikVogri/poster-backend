@@ -23,20 +23,24 @@ export const loginUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ where: { email } });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email } });
 
-  if (!user) {
-    throw new ServerError("Invalid email and password combination", 401);
+    if (!user) {
+      throw new ServerError("Invalid email and password combination", 401);
+    }
+
+    if (!bcrypt.compareSync(password, user.password)) {
+      throw new ServerError("Invalid password", 400);
+    }
+
+    req.session.email = user.email;
+
+    res.send({ success: true, user });
+  } catch (err) {
+    next(err);
   }
-
-  if (!bcrypt.compareSync(password, user.password)) {
-    throw new ServerError("Invalid password", 400);
-  }
-
-  req.session.email = user.email;
-
-  res.send({ success: true, user });
 };
 
 export const registerUser = async (
