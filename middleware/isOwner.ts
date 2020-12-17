@@ -1,9 +1,9 @@
 import { NextFunction, Response, Request } from "express";
 import ServerError from "../helpers/errorHandler";
 // import { UserRequest } from "../interfaces/expressInterface";
-import { Post as PostInterface } from "../interfaces/postInterface";
+import { Page as PageInterface } from "../interfaces/pageInterface";
 import { User } from "../interfaces/userInterface";
-import Post from "../models/Post";
+import Page from "../models/Page";
 
 interface UserRequest extends Request {
   user: User;
@@ -12,18 +12,18 @@ interface UserRequest extends Request {
 const isOwner = async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const { slug } = req.params;
-    const post: PostInterface | null = await Post.findOne({
+    const page: PageInterface | null = await Page.findOne({
       where: { slug },
     });
     const { id: userId } = req.user;
 
-    if (!post) {
+    if (!page) {
       return res
         .status(400)
-        .send({ success: false, error: "Post with that id was not found" });
+        .send({ success: false, error: "Page with that id was not found" });
     }
 
-    if (userId !== post.UserId) {
+    if (userId !== page.UserId) {
       return res.status(403).send({ success: false, msg: "Not Allowed" });
     }
 

@@ -1,23 +1,23 @@
 import { Response, NextFunction, Request } from "express";
 import ServerError from "../helpers/errorHandler";
-import { Post as PostInterface } from "../interfaces/postInterface";
 import { UserRequest } from "../interfaces/expressInterface";
-import { generatePostSlug } from "../helpers/generateSlug";
-import Post from "../models/Post";
+import { generatePageSlug } from "../helpers/generateSlug";
+import Page from "../models/Page";
 import User from "../models/User";
 
 export const getAll = async (_: Request, res: Response) => {
-  const posts = (await Post.findAll({
+  const pages = await Page.findAll({
     where: { deleted: false },
     order: [["createdAt", "DESC"]],
     include: {
       model: User,
       attributes: ["username", "id", "slug"],
     },
-  })) as PostInterface[];
+  });
+
   return res.send({
     success: true,
-    posts,
+    pages,
   }) as any;
 };
 
@@ -35,16 +35,16 @@ export const create = async (
         throw new ServerError("Please provide title and content", 400);
       }
 
-      const post = await Post.create({
+      const page = await Page.create({
         title,
         content,
         UserId: `${id}`,
-        slug: await generatePostSlug(title),
+        slug: await generatePageSlug(title),
       });
 
       return res.send({
         success: true,
-        post,
+        page: page,
       });
     } else {
       throw new ServerError();
@@ -64,10 +64,10 @@ export const remove = async (
     const { slug } = req.params;
 
     if (!slug) {
-      throw new ServerError("Provide id for post to be deleted", 400);
+      throw new ServerError("Provide id for page to be deleted", 400);
     }
 
-    await Post.update({ deleted: true }, { where: { slug } });
+    await Page.update({ deleted: true }, { where: { slug } });
 
     res.send({ success: true });
   } catch (err) {
@@ -83,7 +83,7 @@ export const getSingle = async (
   try {
     const { slug } = req.params;
 
-    const post = await Post.findOne({
+    const page = await Page.findOne({
       where: { slug },
       include: {
         model: User,
@@ -91,10 +91,10 @@ export const getSingle = async (
       },
     });
 
-    if (!post) {
-      throw new ServerError("Post not found", 404);
+    if (!page) {
+      throw new ServerError("Page not found", 404);
     }
-    return res.status(200).send({ success: true, post });
+    return res.status(200).send({ success: true, page });
   } catch (err) {
     console.log(err);
     next(err);

@@ -1,7 +1,7 @@
 {
-  "name": "poster",
+  "name": "pager",
   "version": "0.0.1",
-  "description": "post your thoughts",
+  "description": "write down on your pages",
   "main": "app.js",
   "scripts": {
     "start:dev": "nodemon --config nodemon.json app.ts",
@@ -9,8 +9,8 @@
     "start": "node dist/app.js"
   },
   "keywords": [
-    "poster",
-    "post"
+    "pager",
+    "make your own pages"
   ],
   "author": "Nik Vogrinec",
   "license": "MIT",

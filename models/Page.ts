@@ -1,14 +1,14 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { Post as PostInterface } from "../interfaces/postInterface";
+import { Page as PageInterface } from "../interfaces/pageInterface";
 import sequelize from "../helpers/database";
 import User from "./User";
 
-interface PostCreationAttributes extends Optional<PostInterface, "id"> {}
-interface PostInstance
-  extends Model<PostInterface, PostCreationAttributes>,
-    PostInterface {}
+interface PageCreationAttributes extends Optional<PageInterface, "id"> {}
+interface PageInstance
+  extends Model<PageInterface, PageCreationAttributes>,
+    PageInterface {}
 
-const Post = sequelize.define<PostInstance>("Post", {
+const Page = sequelize.define<PageInstance>("Page", {
   title: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -28,10 +28,10 @@ const Post = sequelize.define<PostInstance>("Post", {
   },
 });
 
-Post.belongsTo(User);
-User.hasMany(Post);
+Page.belongsTo(User);
+User.hasMany(Page);
 
 // runs this if table does not exist else does nothing
-Post.sync();
+Page.sync();
 
-export default Post;
+export default Page;

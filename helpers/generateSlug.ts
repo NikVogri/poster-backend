@@ -1,9 +1,9 @@
 import { Op } from "sequelize";
 import slugify from "slugify";
 import { User as UserInterface } from "../interfaces/userInterface";
-import { Post as PostInterface } from "../interfaces/postInterface";
+import { Page as PageInterface } from "../interfaces/pageInterface";
 import User from "../models/User";
-import Post from "../models/Post";
+import Page from "../models/Page";
 
 export const generateUsernameSlug = async (
   username: string
@@ -23,16 +23,16 @@ export const generateUsernameSlug = async (
   return usernameSlug;
 };
 
-export const generatePostSlug = async (title: string): Promise<string> => {
-  let postSlug = slugify(title, { lower: true, strict: true });
+export const generatePageSlug = async (title: string): Promise<string> => {
+  let pageSlug = slugify(title, { lower: true, strict: true });
 
-  const posts: PostInterface[] | [] = await Post.findAll({
-    where: { slug: { [Op.like]: `${postSlug}%` } },
+  const pages: PageInterface[] | [] = await Page.findAll({
+    where: { slug: { [Op.like]: `${pageSlug}%` } },
   });
 
-  if (posts.length > 0) {
-    postSlug += `-${posts.length}`;
+  if (pages.length > 0) {
+    pageSlug += `-${pages.length}`;
   }
 
-  return postSlug;
+  return pageSlug;
 };

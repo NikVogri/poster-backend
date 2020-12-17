@@ -6,7 +6,7 @@ import session from "express-session";
 import sequelize from "./helpers/database";
 
 // routers
-import postsRouter from "./routes/postsRouter";
+import pageRouter from "./routes/pageRouter";
 import authRouter from "./routes/authRouter";
 
 const PORT = process.env.PORT || 5000;
@@ -40,7 +40,7 @@ app.use(
 );
 
 //ROUTERS
-app.use("/api/v1/posts", postsRouter);
+app.use("/api/v1/pages", pageRouter);
 app.use("/api/v1/auth", authRouter);
 
 // ERROR HANDLER
@@ -82,7 +82,7 @@ app.use(
 app.get(
   "/",
   (_, res): RequestHandler => {
-    return res.send("Welcome to poster API") as any;
+    return res.send("Welcome to pager API") as any;
   }
 );
 
