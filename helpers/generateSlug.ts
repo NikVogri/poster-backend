@@ -4,6 +4,7 @@ import { User as UserInterface } from "../interfaces/userInterface";
 import { Page as PageInterface } from "../interfaces/pageInterface";
 import User from "../models/User";
 import Page from "../models/Page";
+import crypto from "crypto";
 
 export const generateUsernameSlug = async (
   username: string
@@ -23,15 +24,20 @@ export const generateUsernameSlug = async (
   return usernameSlug;
 };
 
-export const generatePageSlug = async (title: string): Promise<string> => {
-  let pageSlug = slugify(title, { lower: true, strict: true });
+export const generatePageSlug = async (): Promise<string> => {
+  let isNotUnique = true;
+  let pageSlug = "";
 
-  const pages: PageInterface[] | [] = await Page.findAll({
-    where: { slug: { [Op.like]: `${pageSlug}%` } },
-  });
+  while (isNotUnique) {
+    pageSlug = crypto.randomBytes(12).toString("hex");
 
-  if (pages.length > 0) {
-    pageSlug += `-${pages.length}`;
+    const pages: PageInterface[] | [] = await Page.findAll({
+      where: { slug: { [Op.like]: `%${pageSlug}%` } },
+    });
+
+    if (!pages.length) {
+      isNotUnique = false;
+    }
   }
 
   return pageSlug;

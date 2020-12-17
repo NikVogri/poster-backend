@@ -5,15 +5,19 @@ import { generatePageSlug } from "../helpers/generateSlug";
 import Page from "../models/Page";
 import User from "../models/User";
 
-export const getAll = async (_: Request, res: Response) => {
+export const getAll = async (req: Request, res: Response) => {
+  const { UserId } = req.params;
+
   const pages = await Page.findAll({
-    where: { deleted: false },
+    where: { deleted: false, UserId },
     order: [["createdAt", "DESC"]],
     include: {
       model: User,
       attributes: ["username", "id", "slug"],
     },
   });
+
+  console.log(pages);
 
   return res.send({
     success: true,
@@ -29,17 +33,19 @@ export const create = async (
   try {
     if (req.user) {
       const { id } = req.user;
-      const { title, content } = req.body as any;
+      const { title, isPrivate } = req.body as any;
 
-      if (!title || !content) {
-        throw new ServerError("Please provide title and content", 400);
+      console.log(req.body);
+
+      if (!title || typeof isPrivate !== "boolean") {
+        throw new ServerError("Please provide title and private type", 400);
       }
 
       const page = await Page.create({
         title,
-        content,
+        private: isPrivate,
         UserId: `${id}`,
-        slug: await generatePageSlug(title),
+        slug: await generatePageSlug(),
       });
 
       return res.send({

@@ -13,8 +13,8 @@ const Page = sequelize.define<PageInstance>("Page", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  content: {
-    type: DataTypes.TEXT,
+  private: {
+    type: DataTypes.BOOLEAN,
     allowNull: false,
   },
   slug: {
