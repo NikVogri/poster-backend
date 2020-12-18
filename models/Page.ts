@@ -22,6 +22,10 @@ const Page = sequelize.define<PageInstance>("Page", {
     allowNull: false,
     unique: true,
   },
+  content: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
   deleted: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
