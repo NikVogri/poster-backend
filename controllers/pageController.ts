@@ -106,3 +106,26 @@ export const getSingle = async (
     next(err);
   }
 };
+
+export const update = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { slug } = req.params;
+    const { data } = req.body;
+
+    console.log(data);
+
+    if (!data) {
+      throw new ServerError("Provide data to store", 400);
+    }
+
+    await Page.update({ content: data }, { where: { slug } });
+
+    res.send({ success: true });
+  } catch (err) {
+    next(err);
+  }
+};
