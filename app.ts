@@ -3,13 +3,10 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import session from "express-session";
-import sequelize from "./helpers/database";
 
 // routers
 import pageRouter from "./routes/pageRouter";
 import authRouter from "./routes/authRouter";
-
-const PORT = process.env.PORT || 5000;
 
 const app = express();
 
@@ -70,8 +67,6 @@ app.use(
       error.errorMessage = "Please specify all the required fields";
     }
 
-    console.log(error);
-
     return res
       .status(error.code)
       .send({ success: false, error: error.errorMessage });
@@ -86,8 +81,4 @@ app.get(
   }
 );
 
-app.listen(PORT, async () => {
-  // Make sure sequelize is connected correctly
-  await sequelize.authenticate();
-  console.log("Server started on port " + PORT);
-});
+export default app;
