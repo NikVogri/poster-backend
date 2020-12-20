@@ -17,8 +17,6 @@ export const getAll = async (req: Request, res: Response) => {
     },
   });
 
-  console.log(pages);
-
   return res.send({
     success: true,
     pages,
@@ -35,8 +33,6 @@ export const create = async (
       const { id } = req.user;
       const { title, isPrivate } = req.body as any;
 
-      console.log(req.body);
-
       if (!title || typeof isPrivate !== "boolean") {
         throw new ServerError("Please provide title and private type", 400);
       }
@@ -48,7 +44,7 @@ export const create = async (
         slug: await generatePageSlug(),
       });
 
-      return res.send({
+      return res.status(201).send({
         success: true,
         page: page,
       });
@@ -56,7 +52,6 @@ export const create = async (
       throw new ServerError();
     }
   } catch (err) {
-    console.log(err);
     return next(err);
   }
 };
@@ -73,7 +68,7 @@ export const remove = async (
       throw new ServerError("Provide id for page to be deleted", 400);
     }
 
-    await Page.update({ deleted: true }, { where: { slug } });
+    await Page.destroy({ where: { slug } });
 
     res.send({ success: true });
   } catch (err) {
@@ -102,7 +97,6 @@ export const getSingle = async (
     }
     return res.status(200).send({ success: true, page });
   } catch (err) {
-    console.log(err);
     next(err);
   }
 };
@@ -115,8 +109,6 @@ export const update = async (
   try {
     const { slug } = req.params;
     const { data } = req.body;
-
-    console.log(data);
 
     if (!data) {
       throw new ServerError("Provide data to store", 400);

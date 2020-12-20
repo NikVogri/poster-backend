@@ -105,6 +105,10 @@ export const changePassword = async (
   try {
     const user = await User.findOne({ where: { id } });
 
+    if (!password || !newPassword) {
+      throw new ServerError("Provide password and newPassword", 400);
+    }
+
     if (!user) {
       throw new ServerError();
     }
