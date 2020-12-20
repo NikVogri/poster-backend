@@ -10,10 +10,9 @@ const { DATABASE_URL } = process.env;
 
 if (!DATABASE_URL) {
   throw new Error("Please provide a database url");
-  1;
 }
 
-const sequelize = new Sequelize(DATABASE_URL, {
+const sequelize = new Sequelize(__test__ ? "sqlite::memory" : DATABASE_URL, {
   logging: __dev__,
 });
 
