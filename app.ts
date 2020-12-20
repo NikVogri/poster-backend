@@ -37,7 +37,7 @@ app.use(
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,
     cookie: {
-      sameSite: "none",
+      sameSite: __prod__ ? "none" : "lax",
       secure: __prod__,
     },
   })
