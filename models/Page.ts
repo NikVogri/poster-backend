@@ -35,7 +35,4 @@ const Page = sequelize.define<PageInstance>("Page", {
 Page.belongsTo(User);
 User.hasMany(Page);
 
-// runs this if table does not exist else does nothing
-Page.sync();
-
 export default Page;

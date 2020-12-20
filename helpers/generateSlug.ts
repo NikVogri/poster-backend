@@ -15,8 +15,6 @@ export const generateUsernameSlug = async (
     where: { slug: { [Op.like]: `${usernameSlug}%` } },
   });
 
-  console.log("USERS", users);
-
   if (users.length > 0) {
     usernameSlug += `-${users.length}`;
   }

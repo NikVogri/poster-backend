@@ -20,8 +20,6 @@ const checkAuth = async (
 ) => {
   const { email } = req.session as any;
 
-  console.log(req.session);
-
   if (email) {
     const user: UserInterface | any = await User.findOne({
       where: { email },

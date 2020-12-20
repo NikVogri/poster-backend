@@ -29,7 +29,4 @@ const ForgotPassword = sequelize.define<ForgotPasswordInstance>(
 
 ForgotPassword.belongsTo(User);
 
-// runs this if table does not exist else does nothing
-ForgotPassword.sync();
-
 export default ForgotPassword;
