@@ -7,6 +7,7 @@ import session from "express-session";
 // routers
 import pageRouter from "./routes/pageRouter";
 import authRouter from "./routes/authRouter";
+import { __prod__ } from "./config/environment";
 
 const app = express();
 
@@ -23,6 +24,8 @@ if (
   throw new Error("Provide email provider host, port, user and password");
 }
 
+app.set("trust proxy", 1);
+
 // MIDDLEWARE
 app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
 app.use(bodyParser.json());
@@ -33,6 +36,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,
+    cookie: {
+      sameSite: "none",
+      secure: __prod__,
+    },
   })
 );
 
