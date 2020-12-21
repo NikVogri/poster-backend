@@ -5,11 +5,15 @@ import { generatePageSlug } from "../helpers/generateSlug";
 import Page from "../models/Page";
 import User from "../models/User";
 
-export const getAll = async (req: Request, res: Response) => {
-  const { UserId } = req.params;
+export const getAll = async (req: UserRequest, res: Response) => {
+  const { id } = req.user;
+
+  if (!id) {
+    throw new ServerError();
+  }
 
   const pages = await Page.findAll({
-    where: { deleted: false, UserId },
+    where: { deleted: false, UserId: id },
     order: [["createdAt", "DESC"]],
     include: {
       model: User,
@@ -116,7 +120,7 @@ export const update = async (
 
     await Page.update({ content: data }, { where: { slug } });
 
-    res.send({ success: true });
+    res.send({ success: true, lastUpdateTime: new Date() });
   } catch (err) {
     next(err);
   }

@@ -4,7 +4,7 @@ import * as pageController from "../controllers/pageController";
 import checkAuth from "../middleware/checkAuth";
 import isOwner from "../middleware/isOwner";
 
-router.get("/all/:UserId", pageController.getAll);
+router.get("/all", checkAuth, pageController.getAll as any);
 router.post("/", checkAuth, pageController.create as any);
 router.put("/:slug", checkAuth, isOwner as any, pageController.update);
 router.delete("/:slug", checkAuth, isOwner as any, pageController.remove);
