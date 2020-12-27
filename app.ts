@@ -37,8 +37,11 @@ app.use(
     saveUninitialized: false,
     secret: process.env.SESSION_SECRET,
     cookie: {
-      sameSite: __prod__ ? "none" : "lax",
+      maxAge: 1000 * 60 * 24 * 7,
+      sameSite: "lax",
+      httpOnly: true,
       secure: __prod__,
+      domain: __prod__ ? "mipage.live" : undefined,
     },
   })
 );
