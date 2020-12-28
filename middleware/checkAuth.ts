@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import ServerError from "../helpers/errorHandler";
 import { User as UserInterface } from "../interfaces/userInterface";
-import User from "../models/User";
+import { User } from "../database/entity/User";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -21,9 +21,7 @@ const checkAuth = async (
   const { email } = req.session as any;
 
   if (email) {
-    const user: UserInterface | any = await User.findOne({
-      where: { email },
-    });
+    const user = await User.findOne({ email });
 
     if (!user) {
       throw new ServerError();

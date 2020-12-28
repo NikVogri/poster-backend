@@ -2,8 +2,8 @@ import { Response, NextFunction, Request } from "express";
 import ServerError from "../helpers/errorHandler";
 import { UserRequest } from "../interfaces/expressInterface";
 import { generatePageSlug } from "../helpers/generateSlug";
-import Page from "../models/Page";
-import User from "../models/User";
+import { Page } from "../database/entity/Page";
+import { User } from "../database/entity/User";
 
 export const getAll = async (req: UserRequest, res: Response) => {
   const { id } = req.user;
@@ -12,14 +12,11 @@ export const getAll = async (req: UserRequest, res: Response) => {
     throw new ServerError();
   }
 
-  const pages = await Page.findAll({
-    where: { deleted: false, UserId: id },
-    order: [["createdAt", "DESC"]],
-    include: {
-      model: User,
-      attributes: ["username", "id", "slug"],
-    },
-  });
+  const pages = await Page.createQueryBuilder("page")
+    .where(`page.ownerId = :id`, {
+      id,
+    })
+    .getMany();
 
   return res.send({
     success: true,
@@ -41,16 +38,23 @@ export const create = async (
         throw new ServerError("Please provide title and private type", 400);
       }
 
-      const page = await Page.create({
+      const user = await User.findOneOrFail(
+        { id },
+        { select: ["id", "slug", "username"] }
+      );
+
+      const page = Page.create({
         title,
         private: isPrivate,
-        UserId: `${id}`,
+        owner: user,
         slug: await generatePageSlug(),
       });
 
+      page.save();
+
       return res.status(201).send({
         success: true,
-        page: page,
+        page,
       });
     } else {
       throw new ServerError();
@@ -72,7 +76,7 @@ export const remove = async (
       throw new ServerError("Provide id for page to be deleted", 400);
     }
 
-    await Page.destroy({ where: { slug } });
+    await Page.delete({ slug });
 
     res.send({ success: true });
   } catch (err) {
@@ -88,13 +92,10 @@ export const getSingle = async (
   try {
     const { slug } = req.params;
 
-    const page = await Page.findOne({
-      where: { slug },
-      include: {
-        model: User,
-        attributes: ["username", "id", "slug"],
-      },
-    });
+    const page = await Page.findOne(
+      { slug },
+      { relations: ["members", "owner"] }
+    );
 
     if (!page) {
       throw new ServerError("Page not found", 404);
@@ -118,7 +119,7 @@ export const update = async (
       throw new ServerError("Provide data to store", 400);
     }
 
-    await Page.update({ content: data }, { where: { slug } });
+    await Page.update({ slug }, { content: data });
 
     res.send({ success: true, lastUpdateTime: new Date() });
   } catch (err) {

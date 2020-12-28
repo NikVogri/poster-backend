@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import ServerError from "../helpers/errorHandler";
 import bcrypt from "bcrypt";
-import User from "../models/User";
+import { User } from "../database/entity/User";
 import { generateUsernameSlug } from "../helpers/generateSlug";
 import passwordValidator from "../helpers/passwordValidator";
 import { User as UserInterface } from "../interfaces/userInterface";
-import ForgotPassword from "../models/ForgotPassword";
+import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
 import { generateUniqueToken } from "../helpers/token";
 import { sendEmail } from "../helpers/email";
 
@@ -28,7 +28,7 @@ export const loginUser = async (
 ) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ email });
 
     if (!user) {
       throw new ServerError("Invalid email and password combination", 401);
@@ -40,8 +40,17 @@ export const loginUser = async (
 
     req.session.email = user.email;
 
-    res.send({ success: true, user });
+    res.send({
+      success: true,
+      user: {
+        email: user.email,
+        slug: user.slug,
+        username: user.username,
+        id: user.id,
+      },
+    });
   } catch (err) {
+    console.log(err);
     next(err);
   }
 };
@@ -62,8 +71,8 @@ export const registerUser = async (
     }
 
     // validate that user with that email does not yet exist
-    const users = await User.findAll({ where: { email } });
-    if (users.length > 0) {
+    const user = await User.findOne({ email });
+    if (user) {
       throw new ServerError("User with that email address already exists", 400);
     }
 
@@ -72,11 +81,16 @@ export const registerUser = async (
 
     // store new user in database
     const slug = await generateUsernameSlug(username);
-    await User.create({ email, username, password: hashedPassword, slug });
+    const newUser = User.create({
+      email,
+      username,
+      password: hashedPassword,
+      slug,
+    });
+    await newUser!.save();
 
     return res.status(201).send({ sucess: true });
   } catch (err) {
-    console.log(err);
     return next(err);
   }
 };
@@ -103,7 +117,7 @@ export const changePassword = async (
   const { id } = req.user;
   const { password, newPassword } = req.body;
   try {
-    const user = await User.findOne({ where: { id } });
+    const user = await User.findOne({ id });
 
     if (!password || !newPassword) {
       throw new ServerError("Provide password and newPassword", 400);
@@ -118,13 +132,13 @@ export const changePassword = async (
     }
 
     const hashedPassword = bcrypt.hashSync(newPassword, SALT_ROUNDS);
-    await user.update({ password: hashedPassword });
+    user.password = hashedPassword;
+    user.save();
 
     res
       .status(200)
       .send({ success: true, msg: "Password changed successfully" });
   } catch (err) {
-    console.log(err);
     return next(err);
   }
 };
@@ -154,26 +168,26 @@ export const forgotPassword = async (
       throw new ServerError("Please provide an email address", 400);
     }
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ email });
 
     if (!user) {
       throw new ServerError("No user found with that email address", 400);
     }
 
-    const olderToken = await ForgotPassword.findOne({
-      where: { UserId: user.id },
-    });
+    const olderToken = await ForgotPasswordToken.findOne({ user });
 
     if (olderToken) {
-      await olderToken.destroy();
+      await olderToken.remove();
     }
 
-    const token = await generateUniqueToken();
+    const token = generateUniqueToken();
 
-    await ForgotPassword.create({
-      UserId: user.id,
+    const forgotToken = ForgotPasswordToken.create({
+      user,
       token,
     });
+
+    await forgotToken.save();
 
     const message = `
     <h1>Your password reset</h1>
@@ -204,24 +218,26 @@ export const resetPassword = async (
       throw new ServerError("Please provide password and token", 400);
     }
 
-    const userToken = await ForgotPassword.findOne({
-      where: { token },
-    });
+    const userToken = await ForgotPasswordToken.findOne(
+      { token },
+      { relations: ["user"] }
+    );
 
     if (!userToken) {
       throw new ServerError("Invalid token provided", 400);
     }
 
-    const user = await User.findOne({ where: { id: userToken.UserId } });
+    console.log(userToken);
+    const user = await User.findOne({ id: userToken.user.id });
 
     if (!user) {
       throw new ServerError();
     }
 
     const newHashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
-    user.update({ password: newHashedPassword });
+    user.password = newHashedPassword;
     await user.save();
-    await userToken.destroy();
+    await userToken.remove();
 
     res.send({ success: true, msg: "Password changed" });
   } catch (err) {

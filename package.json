@@ -1,60 +1,62 @@
 {
-  "name": "pager",
-  "version": "0.0.1",
-  "description": "write down on your pages",
-  "main": "app.js",
-  "scripts": {
-    "start:dev": "nodemon --config nodemon.json index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "test": "jest"
-  },
-  "keywords": [
-    "pager",
-    "make your own pages"
-  ],
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "./tests/setup.ts"
-    ]
-  },
-  "author": "Nik Vogrinec",
-  "license": "MIT",
-  "dependencies": {
-    "bcrypt": "^5.0.0",
-    "cookie-parser": "^1.4.5",
-    "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "express-session": "^1.17.1",
-    "nodemailer": "^6.4.17",
-    "pg": "^8.5.1",
-    "pg-hstore": "^2.3.3",
-    "sequelize": "^6.3.5",
-    "session": "^0.1.0",
-    "slugify": "^1.4.6"
-  },
-  "devDependencies": {
-    "@types/bcrypt": "^3.0.0",
-    "@types/body-parser": "^1.19.0",
-    "@types/cookie-parser": "^1.4.2",
-    "@types/cors": "^2.8.9",
-    "@types/express": "^4.17.9",
-    "@types/express-serve-static-core": "^4.17.17",
-    "@types/express-session": "^1.17.3",
-    "@types/jest": "^26.0.19",
-    "@types/node": "^14.14.14",
-    "@types/supertest": "^2.0.10",
-    "@types/validator": "^13.1.1",
-    "jest": "^26.6.3",
-    "remove": "^0.1.5",
-    "sqlite3": "^5.0.0",
-    "supertest": "^6.0.1",
-    "ts-jest": "^26.4.4",
-    "ts-node": "^9.1.1",
-    "tslint": "^6.1.3",
-    "typescript": "^4.1.2"
-  }
+   "name": "pager",
+   "version": "0.0.1",
+   "description": "write down on your pages",
+   "main": "app.js",
+   "scripts": {
+      "start:dev": "nodemon --config nodemon.json index.ts",
+      "build": "tsc",
+      "start": "ts-node src/index.ts",
+      "test": "jest"
+   },
+   "keywords": [
+      "pager",
+      "make your own pages"
+   ],
+   "jest": {
+      "preset": "ts-jest",
+      "testEnvironment": "node",
+      "setupFilesAfterEnv": [
+         "./tests/setup.ts"
+      ]
+   },
+   "author": "Nik Vogrinec",
+   "license": "MIT",
+   "dependencies": {
+      "bcrypt": "^5.0.0",
+      "cookie-parser": "^1.4.5",
+      "cors": "^2.8.5",
+      "dotenv": "^8.2.0",
+      "express": "^4.17.1",
+      "express-session": "^1.17.1",
+      "mysql": "^2.14.1",
+      "nodemailer": "^6.4.17",
+      "pg": "^8.5.1",
+      "pg-hstore": "^2.3.3",
+      "reflect-metadata": "^0.1.10",
+      "session": "^0.1.0",
+      "slugify": "^1.4.6",
+      "typeorm": "0.2.29"
+   },
+   "devDependencies": {
+      "@types/bcrypt": "^3.0.0",
+      "@types/body-parser": "^1.19.0",
+      "@types/cookie-parser": "^1.4.2",
+      "@types/cors": "^2.8.9",
+      "@types/express": "^4.17.9",
+      "@types/express-serve-static-core": "^4.17.17",
+      "@types/express-session": "^1.17.3",
+      "@types/jest": "^26.0.19",
+      "@types/node": "^8.0.29",
+      "@types/supertest": "^2.0.10",
+      "@types/validator": "^13.1.1",
+      "jest": "^26.6.3",
+      "remove": "^0.1.5",
+      "sqlite3": "^5.0.0",
+      "supertest": "^6.0.1",
+      "ts-jest": "^26.4.4",
+      "ts-node": "3.3.0",
+      "tslint": "^6.1.3",
+      "typescript": "3.3.3333"
+   }
 }

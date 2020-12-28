@@ -54,7 +54,7 @@ it("/ -> can't create a page when isPrivate is not sent", async () => {
     .expect(400);
 });
 
-it("/all/:UserId -> can get all pages for only a specific user", async () => {
+it("/all/:slug -> can get all pages for only a specific user", async () => {
   const nicksCookie = await loginUser("nick", "nick@nick.com");
   const otherCookie = await loginUser("bob", "bob@bob.com");
 
@@ -62,10 +62,9 @@ it("/all/:UserId -> can get all pages for only a specific user", async () => {
   await createPage(nicksCookie, "my second page"); //  Nicks page
   await createPage(otherCookie, "my third page"); // Other use page -> should not get returned
 
-  const nick = await User.findOne({ where: { email: "nick@nick.com" } });
-
   const res = await request
-    .get(`/api/v1/pages/all/${nick!.id}`)
+    .get(`/api/v1/pages/all`)
+    .set("Cookie", nicksCookie)
     .send()
     .expect(200);
 
