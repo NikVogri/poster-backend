@@ -50,7 +50,6 @@ export const loginUser = async (
       },
     });
   } catch (err) {
-    console.log(err);
     next(err);
   }
 };

@@ -11,8 +11,6 @@ export const generateUsernameSlug = async (
 
   const slugStackCount = await User.count({ slug: Like(`${usernameSlug}%`) });
 
-  console.log("SLUG COUNT", slugStackCount);
-
   if (slugStackCount > 0) {
     usernameSlug += `-${slugStackCount}`;
   }

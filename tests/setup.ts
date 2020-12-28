@@ -1,32 +1,25 @@
 import request from "supertest";
 import app from "../app";
-import path from "path";
 
-import User from "../models/User";
-import Page from "../models/Page";
-import ForgotPassword from "../models/ForgotPassword";
-import { Sequelize } from "sequelize";
-
-let db: Sequelize;
-
-beforeAll(() => {
-  db = new Sequelize("sqlite::memory");
-});
+import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
+import { User } from "../database/entity/User";
+import { Page } from "../database/entity/Page";
+import { createConnection, getConnection } from "typeorm";
 
 beforeEach(async () => {
-  await User.sync();
-  await Page.sync();
-  await ForgotPassword.sync();
+  await createConnection({
+    type: "sqlite",
+    database: ":memory:",
+    dropSchema: true,
+    entities: [User, ForgotPasswordToken, Page],
+    synchronize: true,
+    logging: false,
+  });
 });
 
-afterEach(async () => {
-  await User.destroy({ where: {}, force: true });
-  await Page.destroy({ where: {}, force: true });
-  await ForgotPassword.destroy({ where: {}, force: true });
-});
-
-afterAll(async () => {
-  await db.close();
+afterEach(() => {
+  let connection = getConnection();
+  return connection.close();
 });
 
 export const loginUser = async (
@@ -44,5 +37,18 @@ export const loginUser = async (
     .post("/api/v1/auth/login")
     .send({ email, password });
 
+  console.log("COOKIE HERE", res.headers);
+
   return res.headers["set-cookie"][0].split(";")[0];
+};
+
+export const createPage = async (
+  cookie: string,
+  title: string,
+  isPrivate: boolean = false
+): Promise<any> => {
+  await request(app)
+    .post("/api/v1/pages")
+    .set("Cookie", cookie)
+    .send({ title, isPrivate });
 };

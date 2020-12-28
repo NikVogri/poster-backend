@@ -10,7 +10,7 @@ dotenv.config();
 // routers
 import pageRouter from "./routes/pageRouter";
 import authRouter from "./routes/authRouter";
-import { __dev__, __prod__ } from "./config/environment";
+import { __dev__, __prod__, __test__ } from "./config/environment";
 import { createConnection } from "typeorm";
 import { User } from "./database/entity/User";
 import { ForgotPasswordToken } from "./database/entity/ForgotPasswordToken";
@@ -19,15 +19,17 @@ import { Page } from "./database/entity/Page";
 const app = express();
 
 const main = async () => {
-  await createConnection({
-    type: "postgres",
-    url: process.env.DATABASE_URL,
-    logging: __dev__,
-    synchronize: true,
-    entities: [User, ForgotPasswordToken, Page],
-  }).catch((err) => {
-    throw new Error(err);
-  });
+  if (!__test__) {
+    await createConnection({
+      type: "postgres",
+      url: process.env.DATABASE_URL,
+      logging: __dev__,
+      synchronize: true,
+      entities: [User, ForgotPasswordToken, Page],
+    }).catch((err) => {
+      throw new Error(err);
+    });
+  }
 
   if (!process.env.SESSION_SECRET) {
     throw new Error("Provide session secret");
