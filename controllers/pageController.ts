@@ -40,6 +40,10 @@ export const create = async (
 
       const user = await User.findOne({ id });
 
+      if (!user) {
+        throw new ServerError();
+      }
+
       const page = Page.create({
         title,
         private: isPrivate,
@@ -47,7 +51,7 @@ export const create = async (
         slug: await generatePageSlug(),
       });
 
-      page.save();
+      await page.save();
 
       return res.status(201).send({
         success: true,

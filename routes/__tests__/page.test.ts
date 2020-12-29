@@ -12,18 +12,18 @@ it("/ -> can't create a page without being logged in", async () => {
     .expect(403);
 });
 
-// it("/ -> can create a page when logged in", async () => {
-//   const pageTitle = "my new page";
-//   await request
-//     .post("/api/v1/pages")
-//     .set("Cookie", await loginUser())
-//     .send({ title: pageTitle, isPrivate: false })
-//     .expect(201);
+it("/ -> can create a page when logged in", async () => {
+  const pageTitle = "my new page";
+  await request
+    .post("/api/v1/pages")
+    .set("Cookie", await loginUser())
+    .send({ title: pageTitle, isPrivate: false })
+    .expect(201);
 
-//   const page = await Page.findOne();
+  const page = await Page.findOne();
 
-//   expect(page!.title).toEqual(pageTitle);
-// });
+  expect(page!.title).toEqual(pageTitle);
+});
 
 it("/ -> can't create a page when title is not sent", async () => {
   await request
@@ -58,15 +58,12 @@ it("/all/:slug -> can get all pages for only a specific user", async () => {
   expect(res.body.pages.length).toEqual(2);
 });
 
-// it("/:slug -> returns 403 if the user is not the owner of the page", async () => {
-//   const cookie = await loginUser();
-//   const page = await createPage("my page", cookie);
+it("/:slug -> returns 403 if the user is not the owner of the page", async () => {
+  const cookie = await loginUser();
+  const page = await createPage("my page", cookie);
 
-//   await request
-//     .delete(`/api/v1/pages/${page.body.page.slug}`)
-//     .send()
-//     .expect(403);
-// });
+  await request.delete(`/api/v1/pages/${page.slug}`).send().expect(403);
+});
 
 it("/:slug -> returns 403 if the user is not the owner of the page", async () => {
   const pageCreatorCookie = await loginUser();
@@ -74,27 +71,24 @@ it("/:slug -> returns 403 if the user is not the owner of the page", async () =>
   const page = await createPage("my page", pageCreatorCookie);
 
   await request
-    .delete(`/api/v1/pages/${page.body.page.slug}`)
+    .delete(`/api/v1/pages/${page.slug}`)
     .set("Cookie", otherUserCookie)
     .send()
     .expect(403);
 });
 
-// it("/:slug -> returns 403 if the user is not authenticated", async () => {
-//   const page = await createPage("my page ");
+it("/:slug -> returns 403 if the user is not authenticated", async () => {
+  const page = await createPage("my page ");
 
-//   await request
-//     .delete(`/api/v1/pages/${page.body.page.slug}`)
-//     .send()
-//     .expect(403);
-// });
+  await request.delete(`/api/v1/pages/${page.slug}`).send().expect(403);
+});
 
 it("/:slug -> deletes a page if the user is owner of that page", async () => {
   const pageCreatorCookie = await loginUser("bob");
   const page = await createPage("my page", pageCreatorCookie);
 
   await request
-    .delete(`/api/v1/pages/${page.body.page.slug}`)
+    .delete(`/api/v1/pages/${page.slug}`)
     .set("Cookie", pageCreatorCookie)
     .send()
     .expect(200);
@@ -112,7 +106,7 @@ it("/:slug -> returns a single page with owner", async () => {
   const page = await createPage(pageTitle, cookie);
 
   const res = await request
-    .get(`/api/v1/pages/${page.body.page.slug}`)
+    .get(`/api/v1/pages/${page.slug}`)
     .set("Cookie", cookie)
     .send()
     .expect(200);
