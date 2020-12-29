@@ -6,8 +6,8 @@ import { User } from "../database/entity/User";
 import { Page } from "../database/entity/Page";
 import { createConnection, getConnection } from "typeorm";
 
-beforeEach(() => {
-  return createConnection({
+beforeEach(async () => {
+  return await createConnection({
     type: "sqlite",
     database: ":memory:",
     dropSchema: true,
@@ -17,21 +17,27 @@ beforeEach(() => {
   });
 });
 
-afterEach(() => {
-  let conn = getConnection();
-  return conn.close();
+afterEach(async () => {
+  await getConnection().close();
 });
+
+export const createUser = async (
+  username: string = "tester",
+  email: string = "test@test.com",
+  password: string = "password"
+): Promise<void> => {
+  // create new user
+  await request(app)
+    .post("/api/v1/auth/register")
+    .send({ username, email, password });
+};
 
 export const loginUser = async (
   username: string = "tester",
   email: string = "test@test.com",
   password: string = "password"
 ): Promise<string> => {
-  // create new user
-  await request(app)
-    .post("/api/v1/auth/register")
-    .send({ username, email, password });
-
+  await createUser(username, email, password);
   // get cookie from response
   const res = await request(app)
     .post("/api/v1/auth/login")
@@ -45,8 +51,10 @@ export const createPage = async (
   cookie?: string,
   isPrivate: boolean = false
 ): Promise<any> => {
-  return await request(app)
+  const res = await request(app)
     .post("/api/v1/pages")
     .set("Cookie", cookie || (await loginUser()))
     .send({ title, isPrivate });
+
+  return res.body.page;
 };
