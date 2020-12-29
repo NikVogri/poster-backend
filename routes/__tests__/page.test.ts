@@ -45,9 +45,9 @@ it("/all/:slug -> can get all pages for only a specific user", async () => {
   const nicksCookie = await loginUser("nick", "nick@nick.com");
   const otherCookie = await loginUser("bob", "bob@bob.com");
 
-  await createPage(nicksCookie, "my first page"); //  Nicks page
-  await createPage(nicksCookie, "my second page"); //  Nicks page
-  await createPage(otherCookie, "my third page"); // Other use page -> should not get returned
+  await createPage("my first page", nicksCookie); //  Nicks page
+  await createPage("my second page", nicksCookie); //  Nicks page
+  await createPage("my third page", otherCookie); // Other use page -> should not get returned
 
   const res = await request
     .get(`/api/v1/pages/all`)
@@ -58,63 +58,58 @@ it("/all/:slug -> can get all pages for only a specific user", async () => {
   expect(res.body.pages.length).toEqual(2);
 });
 
-// it("/:slug -> returns 400 if the user is not the owner of the page", async () => {
-//   const cookie = await loginUser();
-//   const page = await createPage(cookie, "my page");
-
-//   await request
-//     .delete(`/api/v1/pages/${page.body.page.slug}`)
-//     .send()
-//     .expect(403);
-// });
-
 // it("/:slug -> returns 403 if the user is not the owner of the page", async () => {
-//   const pageCreatorCookie = await loginUser();
-//   const otherUserCookie = await loginUser("bob", "bob@gmail.com");
-//   const page = await createPage(pageCreatorCookie, "my page");
+//   const cookie = await loginUser();
+//   const page = await createPage("my page", cookie);
 
 //   await request
 //     .delete(`/api/v1/pages/${page.body.page.slug}`)
-//     .set("Cookie", otherUserCookie)
 //     .send()
 //     .expect(403);
 // });
 
-it("/:slug -> returns 403 if the user is not authenticated", async () => {
+it("/:slug -> returns 403 if the user is not the owner of the page", async () => {
   const pageCreatorCookie = await loginUser();
-  const page = await createPage(pageCreatorCookie, "my page");
-
-  console.log("here");
+  const otherUserCookie = await loginUser("bob", "bob@gmail.com");
+  const page = await createPage("my page", pageCreatorCookie);
 
   await request
     .delete(`/api/v1/pages/${page.body.page.slug}`)
+    .set("Cookie", otherUserCookie)
     .send()
     .expect(403);
 });
 
-// it("/:slug -> deletes a page if the user is owner of that page", async () => {
-//   const pageCreatorCookie = await loginUser("bob", "bob@bob.com");
-//   const page = await createPage(pageCreatorCookie, "my page");
-//   let pages = await Page.find();
-
-//   expect(pages.length).toEqual(1);
+// it("/:slug -> returns 403 if the user is not authenticated", async () => {
+//   const page = await createPage("my page ");
 
 //   await request
 //     .delete(`/api/v1/pages/${page.body.page.slug}`)
-//     .set("Cookie", pageCreatorCookie)
 //     .send()
-//     .expect(200);
-
-//   pages = await Page.find();
-
-//   expect(pages.length).toEqual(0);
+//     .expect(403);
 // });
+
+it("/:slug -> deletes a page if the user is owner of that page", async () => {
+  const pageCreatorCookie = await loginUser("bob");
+  const page = await createPage("my page", pageCreatorCookie);
+
+  await request
+    .delete(`/api/v1/pages/${page.body.page.slug}`)
+    .set("Cookie", pageCreatorCookie)
+    .send()
+    .expect(200);
+
+  const pages = await Page.find();
+
+  expect(pages.length).toEqual(0);
+});
 
 it("/:slug -> returns a single page with owner", async () => {
   const pageTitle = "my page title";
   const username = "nickolas";
   const cookie = await loginUser(username);
-  const page = await createPage(cookie, pageTitle);
+
+  const page = await createPage(pageTitle, cookie);
 
   const res = await request
     .get(`/api/v1/pages/${page.body.page.slug}`)

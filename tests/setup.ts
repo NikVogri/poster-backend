@@ -6,20 +6,20 @@ import { User } from "../database/entity/User";
 import { Page } from "../database/entity/Page";
 import { createConnection, getConnection } from "typeorm";
 
-beforeEach(async () => {
-  await createConnection({
+beforeEach(() => {
+  return createConnection({
     type: "sqlite",
     database: ":memory:",
     dropSchema: true,
-    entities: [User, ForgotPasswordToken, Page],
+    entities: [User, Page],
     synchronize: true,
     logging: false,
   });
 });
 
 afterEach(() => {
-  let connection = getConnection();
-  return connection.close();
+  let conn = getConnection();
+  return conn.close();
 });
 
 export const loginUser = async (
@@ -37,18 +37,16 @@ export const loginUser = async (
     .post("/api/v1/auth/login")
     .send({ email, password });
 
-  console.log("COOKIE HERE", res.headers);
-
   return res.headers["set-cookie"][0].split(";")[0];
 };
 
 export const createPage = async (
-  cookie: string,
   title: string,
+  cookie?: string,
   isPrivate: boolean = false
 ): Promise<any> => {
-  await request(app)
+  return await request(app)
     .post("/api/v1/pages")
-    .set("Cookie", cookie)
+    .set("Cookie", cookie || (await loginUser()))
     .send({ title, isPrivate });
 };

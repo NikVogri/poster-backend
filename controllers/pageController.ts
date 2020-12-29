@@ -38,10 +38,7 @@ export const create = async (
         throw new ServerError("Please provide title and private type", 400);
       }
 
-      const user = await User.findOneOrFail(
-        { id },
-        { select: ["id", "slug", "username"] }
-      );
+      const user = await User.findOne({ id });
 
       const page = Page.create({
         title,
@@ -60,7 +57,7 @@ export const create = async (
       throw new ServerError();
     }
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 

@@ -19,7 +19,6 @@ const checkAuth = async (
   next: NextFunction
 ) => {
   const { email } = req.session as any;
-
   if (email) {
     const user = await User.findOne({ email });
 
