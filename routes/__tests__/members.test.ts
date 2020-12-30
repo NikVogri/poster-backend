@@ -1,8 +1,7 @@
 import supertest from "supertest";
 import app from "../../app";
 import { Page } from "../../database/entity/Page";
-import { createPage, createUser } from "../../tests/setup";
-import { loginUser } from "../../tests/setup";
+import { loginUser, createUser, createPage } from "../../tests/setup";
 
 const request = supertest(app);
 
@@ -170,4 +169,35 @@ it("/remove -> can remove a user from the page", async () => {
     .send();
 
   expect(res.body.members.length).toBe(1);
+});
+
+it("/leave -> allows a page member to leave page membership", async () => {
+  const ownerCookie = await loginUser();
+  await createUser("bob", "bob@gmail.com", "password");
+  let page = await createPage("a page", ownerCookie);
+
+  await request // owner adds a member to page
+    .post(`/api/v1/pages/${page.slug}/members/add`)
+    .set("Cookie", ownerCookie)
+    .send({ email: "bob@gmail.com" })
+    .expect(200);
+
+  page = await Page.findOne({ id: page.id }, { relations: ["members"] });
+  expect(
+    page.members.some((a: { email: string }) => a.email == "bob@gmail.com")
+  ).toBeTruthy();
+
+  const memberCookie = await loginUser("bob", "bob@gmail.com", "password");
+
+  await request // member leaves page
+    .post(`/api/v1/pages/${page.slug}/members/leave`)
+    .set("Cookie", memberCookie)
+    .send()
+    .expect(200);
+
+  page = await Page.findOne({ id: page.id }, { relations: ["members"] });
+
+  expect(
+    page.members.some((a: { email: string }) => a.email == "bob@gmail.com")
+  ).toBeFalsy();
 });

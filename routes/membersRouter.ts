@@ -20,4 +20,6 @@ router.delete(
   membershipController.removeMember
 );
 
+router.post("/leave", checkAuth, membershipController.leave as any);
+
 export default router;

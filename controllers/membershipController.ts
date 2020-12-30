@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express-serve-static-core";
 import ServerError from "../helpers/errorHandler";
 import { Page } from "../database/entity/Page";
 import { User } from "../database/entity/User";
+import { UserRequest } from "../interfaces/expressInterface";
 
 export const inviteMember = async (
   req: Request,
@@ -85,6 +86,30 @@ export const removeMember = async (
     res.send({ success: true, msg: `${emailToRemove} removed from your page` });
   } catch (err) {
     console.log(err);
+    next(err);
+  }
+};
+
+export const leave = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email } = req.user;
+  const { slug } = req.params;
+
+  try {
+    const page = await Page.findOne({ slug }, { relations: ["members"] });
+
+    if (!page) {
+      throw new ServerError("Page not found", 404);
+    }
+
+    page.members = page.members.filter((member) => member.email !== email);
+    await page.save();
+
+    res.send(200).send({ success: true, msg: "Successfully left the page" });
+  } catch (err) {
     next(err);
   }
 };
