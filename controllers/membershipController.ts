@@ -105,6 +105,12 @@ export const leave = async (
       throw new ServerError("Page not found", 404);
     }
 
+    const isAMember = page.members.some((member) => member.email == email);
+
+    if (!isAMember) {
+      throw new ServerError("User is not a member of this page", 400);
+    }
+
     page.members = page.members.filter((member) => member.email !== email);
     await page.save();
 

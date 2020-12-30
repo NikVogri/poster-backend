@@ -182,6 +182,7 @@ it("/leave -> allows a page member to leave page membership", async () => {
     .send({ email: "bob@gmail.com" })
     .expect(200);
 
+  // check that the user is actually added to members
   page = await Page.findOne({ id: page.id }, { relations: ["members"] });
   expect(
     page.members.some((a: { email: string }) => a.email == "bob@gmail.com")
@@ -195,9 +196,24 @@ it("/leave -> allows a page member to leave page membership", async () => {
     .send()
     .expect(200);
 
+  // check that the user is no longer a member
   page = await Page.findOne({ id: page.id }, { relations: ["members"] });
 
   expect(
     page.members.some((a: { email: string }) => a.email == "bob@gmail.com")
   ).toBeFalsy();
+});
+
+it("/leave -> returns a 400 if the user that wants to leave is not a member of the page", async () => {
+  const ownerCookie = await loginUser();
+  await createUser("bob", "bob@gmail.com", "password");
+  let page = await createPage("a page", ownerCookie);
+
+  const memberCookie = await loginUser("bob", "bob@gmail.com", "password");
+
+  await request // member leaves page
+    .post(`/api/v1/pages/${page.slug}/members/leave`)
+    .set("Cookie", memberCookie)
+    .send()
+    .expect(400);
 });
