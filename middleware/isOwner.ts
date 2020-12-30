@@ -4,6 +4,7 @@ import ServerError from "../helpers/errorHandler";
 import { Page as PageInterface } from "../interfaces/pageInterface";
 import { User } from "../interfaces/userInterface";
 import { Page } from "../database/entity/Page";
+import UnauthorizedError from "../errors/UnauthorizedError";
 
 interface UserRequest extends Request {
   user: User;
@@ -22,12 +23,12 @@ const isOwner = async (req: UserRequest, res: Response, next: NextFunction) => {
     }
 
     if (userId !== page.owner.id) {
-      return res.status(403).send({ success: false, msg: "Not Allowed" });
+      throw new UnauthorizedError("", 403);
     }
 
     next();
   } catch (err) {
-    throw new ServerError(err);
+    next(err);
   }
 };
 

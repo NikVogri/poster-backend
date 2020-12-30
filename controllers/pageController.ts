@@ -1,9 +1,11 @@
 import { Response, NextFunction, Request } from "express";
-import ServerError from "../helpers/errorHandler";
 import { UserRequest } from "../interfaces/expressInterface";
 import { generatePageSlug } from "../helpers/generateSlug";
 import { Page } from "../database/entity/Page";
 import { User } from "../database/entity/User";
+import BadRequestError from "../errors/BadRequestError";
+import NotFoundError from "../errors/NotFoundError";
+import ServerError from "../errors/ServerError";
 
 export const getAll = async (req: UserRequest, res: Response) => {
   const { id } = req.user;
@@ -35,7 +37,7 @@ export const create = async (
       const { title, isPrivate } = req.body as any;
 
       if (!title || typeof isPrivate !== "boolean") {
-        throw new ServerError("Please provide title and private type", 400);
+        throw new BadRequestError("Please provide title and private type");
       }
 
       const user = await User.findOne({ id });
@@ -74,7 +76,7 @@ export const remove = async (
     const { slug } = req.params;
 
     if (!slug) {
-      throw new ServerError("Provide id for page to be deleted", 400);
+      throw new BadRequestError("Provide id for page to be deleted");
     }
 
     await Page.delete({ slug });
@@ -99,7 +101,7 @@ export const getSingle = async (
     );
 
     if (!page) {
-      throw new ServerError("Page not found", 404);
+      throw new NotFoundError("Page not found");
     }
     return res.status(200).send({ success: true, page });
   } catch (err) {
@@ -117,7 +119,7 @@ export const update = async (
     const { data } = req.body;
 
     if (!data) {
-      throw new ServerError("Provide data to store", 400);
+      throw new BadRequestError("Provide data to store");
     }
 
     await Page.update({ slug }, { content: data });

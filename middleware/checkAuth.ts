@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import ServerError from "../helpers/errorHandler";
 import { User as UserInterface } from "../interfaces/userInterface";
 import { User } from "../database/entity/User";
+import UnauthorizedError from "../errors/UnauthorizedError";
+import ServerError from "../errors/ServerError";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -19,7 +20,11 @@ const checkAuth = async (
   next: NextFunction
 ) => {
   const { email } = req.session as any;
-  if (email) {
+  try {
+    if (!email) {
+      throw new UnauthorizedError("", 403);
+    }
+
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -28,8 +33,8 @@ const checkAuth = async (
 
     req.user = user;
     next();
-  } else {
-    res.status(403).send({ success: false, msg: "Not Allowed" });
+  } catch (err) {
+    next(err);
   }
 };
 

@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express-serve-static-core";
-import ServerError from "../helpers/errorHandler";
 import { Page } from "../database/entity/Page";
 import { User } from "../database/entity/User";
 import { UserRequest } from "../interfaces/expressInterface";
+import BadRequestError from "../errors/BadRequestError";
+import NotFoundError from "../errors/NotFoundError";
 
 export const inviteMember = async (
   req: Request,
@@ -13,19 +14,19 @@ export const inviteMember = async (
   const { slug } = req.params;
   try {
     if (!invitedEmail) {
-      throw new ServerError("No email provided", 400);
+      throw new BadRequestError("No email provided");
     }
 
     const user = await User.findOne({ email: invitedEmail });
 
     if (!user) {
-      throw new ServerError("Invited user not found", 400);
+      throw new BadRequestError("Invited user not found");
     }
 
     const page = await Page.findOne({ slug }, { relations: ["members"] });
 
     if (!page) {
-      throw new ServerError("Page not found", 400);
+      throw new BadRequestError("Page not found");
     }
 
     page.members.push(user);
@@ -45,13 +46,13 @@ export const getMembers = async (
   const { slug } = req.params;
   try {
     if (!slug) {
-      throw new ServerError("No page slug provided", 400);
+      throw new BadRequestError("No page slug provided");
     }
 
     const page = await Page.findOne({ slug }, { relations: ["members"] });
 
     if (!page) {
-      throw new ServerError("Page not found", 404);
+      throw new NotFoundError("Page not found");
     }
 
     res.send({ success: true, members: page.members });
@@ -71,11 +72,11 @@ export const removeMember = async (
     const page = await Page.findOne({ slug }, { relations: ["members"] });
 
     if (!page) {
-      throw new ServerError("Page not found", 404);
+      throw new NotFoundError("Page not found");
     }
 
     if (!page.members.some((member) => member.email == emailToRemove)) {
-      throw new ServerError("User is not a member of this page", 400);
+      throw new BadRequestError("User is not a member of this page");
     }
 
     page.members = page.members.filter(
@@ -102,13 +103,13 @@ export const leave = async (
     const page = await Page.findOne({ slug }, { relations: ["members"] });
 
     if (!page) {
-      throw new ServerError("Page not found", 404);
+      throw new NotFoundError("Page not found");
     }
 
     const isAMember = page.members.some((member) => member.email == email);
 
     if (!isAMember) {
-      throw new ServerError("User is not a member of this page", 400);
+      throw new BadRequestError("User is not a member of this page");
     }
 
     page.members = page.members.filter((member) => member.email !== email);

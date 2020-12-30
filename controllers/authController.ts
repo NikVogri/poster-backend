@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import ServerError from "../helpers/errorHandler";
 import bcrypt from "bcrypt";
 import { User } from "../database/entity/User";
 import { generateUsernameSlug } from "../helpers/generateSlug";
@@ -8,6 +7,9 @@ import { User as UserInterface } from "../interfaces/userInterface";
 import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
 import { generateUniqueToken } from "../helpers/token";
 import { sendEmail } from "../helpers/email";
+import BadRequestError from "../errors/BadRequestError";
+import ServerError from "../errors/ServerError";
+import UnauthorizedError from "../errors/UnauthorizedError";
 
 declare module "express-session" {
   interface Session {
@@ -31,11 +33,11 @@ export const loginUser = async (
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new ServerError("Invalid email and password combination", 401);
+      throw new UnauthorizedError("Invalid email and password combination");
     }
 
-    if (!bcrypt.compareSync(password, user.password)) {
-      throw new ServerError("Invalid password", 400);
+    if (!passwordValidator(password, user.password)) {
+      throw new BadRequestError("Invalid password");
     }
 
     req.session.email = user.email;
@@ -63,16 +65,15 @@ export const registerUser = async (
 
   try {
     if (!email || !username || !password) {
-      throw new ServerError(
-        "Please enter all the required fields to create a new account",
-        400
+      throw new BadRequestError(
+        "Please enter all the required fields to create a new account"
       );
     }
 
     // validate that user with that email does not yet exist
     const user = await User.findOne({ email });
     if (user) {
-      throw new ServerError("User with that email address already exists", 400);
+      throw new BadRequestError("User with that email address already exists");
     }
 
     // create hashed password
@@ -97,12 +98,11 @@ export const registerUser = async (
 export const logoutUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  _: NextFunction
 ) => {
   req.session.destroy((err) => {
     if (err) {
-      console.log(err);
-      throw new ServerError("Something went wrong", 500);
+      throw new ServerError();
     }
     res.status(200).send({ success: true });
   });
@@ -119,7 +119,7 @@ export const changePassword = async (
     const user = await User.findOne({ id });
 
     if (!newPassword) {
-      throw new ServerError("Provide new password", 400);
+      throw new BadRequestError("Provide new password");
     }
 
     if (!user) {
@@ -160,13 +160,13 @@ export const forgotPassword = async (
     const { email } = req.body;
 
     if (!email) {
-      throw new ServerError("Please provide an email address", 400);
+      throw new BadRequestError("Please provide an email address");
     }
 
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new ServerError("No user found with that email address", 400);
+      throw new BadRequestError("No user found with that email address");
     }
 
     const olderToken = await ForgotPasswordToken.findOne({ user });
@@ -210,7 +210,7 @@ export const resetPassword = async (
     const { password, token } = req.body;
 
     if (!password || !token) {
-      throw new ServerError("Please provide password and token", 400);
+      throw new BadRequestError("Please provide password and token");
     }
 
     const userToken = await ForgotPasswordToken.findOne(
@@ -219,7 +219,7 @@ export const resetPassword = async (
     );
 
     if (!userToken) {
-      throw new ServerError("Invalid token provided", 400);
+      throw new BadRequestError("Invalid token provided");
     }
 
     console.log(userToken);
