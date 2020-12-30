@@ -1,5 +1,4 @@
 import { NextFunction, Response, Request } from "express";
-import ServerError from "../helpers/errorHandler";
 // import { UserRequest } from "../interfaces/expressInterface";
 import { Page as PageInterface } from "../interfaces/pageInterface";
 import { User } from "../interfaces/userInterface";
