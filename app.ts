@@ -5,11 +5,14 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import dotenv from "dotenv";
 import "reflect-metadata";
+import cloudinary from "cloudinary";
 dotenv.config();
 
 // routers
 import pageRouter from "./routes/pageRouter";
 import authRouter from "./routes/authRouter";
+import userRouter from "./routes/userRouter";
+
 import { __dev__, __prod__, __test__ } from "./config/environment";
 import { createConnection } from "typeorm";
 import { User } from "./database/entity/User";
@@ -33,6 +36,16 @@ const main = async () => {
     });
   }
 
+  if (
+    !process.env.CLOUDINARY_API_KEY ||
+    !process.env.CLOUDINARY_API_SECRET ||
+    !process.env.CLOUDINARY_CLOUD_NAME
+  ) {
+    throw new Error(
+      "Provide cloudinary credentials (api key and secret) and cloud name"
+    );
+  }
+
   if (!process.env.SESSION_SECRET) {
     throw new Error("Provide session secret");
   }
@@ -47,6 +60,13 @@ const main = async () => {
   }
 
   app.set("trust proxy", 1);
+
+  // INIT CLOUDINARY
+  cloudinary.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
   // MIDDLEWARE
   app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
@@ -71,6 +91,7 @@ const main = async () => {
   //ROUTERS
   app.use("/api/v1/pages", pageRouter);
   app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/user", userRouter);
 
   // ERROR HANDLER
   app.use(errorHandler as any);
