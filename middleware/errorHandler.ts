@@ -12,7 +12,7 @@ const errorHandler = (
     errorMessage: "Something went wrong",
   };
 
-  if (err instanceof Error) {
+  if (err instanceof BaseError) {
     error.code = err.statusCode!;
     error.errorMessage = err.message;
   }

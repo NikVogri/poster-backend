@@ -10,5 +10,7 @@ export default class ServerError extends BaseError {
     super(errorMessage);
     this.errorMessage = errorMessage;
     this.statusCode = statusCode || 500;
+
+    Object.setPrototypeOf(this, ServerError.prototype);
   }
 }

@@ -10,5 +10,7 @@ export default class NotFoundError extends BaseError {
     super(errorMessage);
     this.errorMessage = errorMessage;
     this.statusCode = statusCode || 404;
+
+    Object.setPrototypeOf(this, NotFoundError.prototype);
   }
 }

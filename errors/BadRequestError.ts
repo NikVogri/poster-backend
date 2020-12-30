@@ -10,5 +10,7 @@ export default class BadRequestError extends BaseError {
     super(errorMessage);
     this.message = errorMessage;
     this.statusCode = statusCode || 400;
+
+    Object.setPrototypeOf(this, BadRequestError.prototype);
   }
 }
