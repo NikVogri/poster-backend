@@ -1,10 +1,11 @@
 import request from "supertest";
 import app from "../app";
 
-import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
 import { User } from "../database/entity/User";
 import { Page } from "../database/entity/Page";
 import { createConnection, getConnection } from "typeorm";
+
+import path from "path";
 
 beforeEach(async () => {
   return await createConnection({
@@ -57,4 +58,8 @@ export const createPage = async (
     .send({ title, isPrivate });
 
   return res.body.page;
+};
+
+export const mockImage = (): any => {
+  return path.join(__dirname, "/mock/images/image.png");
 };
