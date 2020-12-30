@@ -114,25 +114,21 @@ export const changePassword = async (
   next: NextFunction
 ) => {
   const { id } = req.user;
-  const { password, newPassword } = req.body;
+  const { newPassword } = req.body;
   try {
     const user = await User.findOne({ id });
 
-    if (!password || !newPassword) {
-      throw new ServerError("Provide password and newPassword", 400);
+    if (!newPassword) {
+      throw new ServerError("Provide new password", 400);
     }
 
     if (!user) {
       throw new ServerError();
     }
 
-    if (!passwordValidator(password, user.password)) {
-      throw new ServerError("Old password is incorrect", 400);
-    }
-
     const hashedPassword = bcrypt.hashSync(newPassword, SALT_ROUNDS);
     user.password = hashedPassword;
-    user.save();
+    await user.save();
 
     res
       .status(200)
