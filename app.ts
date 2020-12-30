@@ -16,6 +16,8 @@ import { User } from "./database/entity/User";
 import { ForgotPasswordToken } from "./database/entity/ForgotPasswordToken";
 import { Page } from "./database/entity/Page";
 
+import errorHandler from "./middleware/errorHandler";
+
 const app = express();
 
 const main = async () => {
@@ -71,37 +73,7 @@ const main = async () => {
   app.use("/api/v1/auth", authRouter);
 
   // ERROR HANDLER
-  app.use(
-    (
-      err: { errors?: any[]; message?: string; statusCode?: number },
-      _: Request,
-      res: Response,
-      _2: any
-    ) => {
-      let error = {
-        code: 500,
-        errorMessage: "Something went wrong",
-      };
-
-      if (typeof err.errors !== "object" && err.message && err.statusCode) {
-        error.errorMessage = err.message;
-
-        if (err.statusCode) {
-          error.code = err.statusCode;
-        }
-      } else if (
-        typeof err.errors === "object" &&
-        err.errors[0].type === "notNull Violation"
-      ) {
-        error.code = 400;
-        error.errorMessage = "Please specify all the required fields";
-      }
-
-      return res
-        .status(error.code)
-        .send({ success: false, error: error.errorMessage });
-    }
-  );
+  app.use(errorHandler as any);
 
   // ROOT
   app.get(
