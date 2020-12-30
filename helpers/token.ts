@@ -1,6 +1,9 @@
 import crypto from "crypto";
 
-const TOKEN_LENGTH = 24;
+export default class Token {
+  static tokenLength: number = 24;
 
-export const generateUniqueToken = () =>
-  crypto.randomBytes(TOKEN_LENGTH).toString("hex");
+  static generate(): string {
+    return crypto.randomBytes(this.tokenLength).toString("hex");
+  }
+}

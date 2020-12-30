@@ -1,15 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import bcrypt from "bcrypt";
 import { User } from "../database/entity/User";
 import { generateUsernameSlug } from "../helpers/generateSlug";
-import passwordValidator from "../helpers/passwordValidator";
 import { User as UserInterface } from "../interfaces/userInterface";
 import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
-import { generateUniqueToken } from "../helpers/token";
 import { sendEmail } from "../helpers/email";
 import BadRequestError from "../errors/BadRequestError";
 import ServerError from "../errors/ServerError";
 import UnauthorizedError from "../errors/UnauthorizedError";
+import Password from "../helpers/Password";
+import Token from "../helpers/Token";
 
 declare module "express-session" {
   interface Session {
@@ -20,8 +19,6 @@ declare module "express-session" {
 interface UserRequest extends Request {
   user: UserInterface;
 }
-
-const SALT_ROUNDS = 10;
 
 export const loginUser = async (
   req: Request,
@@ -36,7 +33,7 @@ export const loginUser = async (
       throw new UnauthorizedError("Invalid email and password combination");
     }
 
-    if (!passwordValidator(password, user.password)) {
+    if (!Password.validate(password, user.password)) {
       throw new BadRequestError("Invalid password");
     }
 
@@ -75,16 +72,12 @@ export const registerUser = async (
     if (user) {
       throw new BadRequestError("User with that email address already exists");
     }
-
-    // create hashed password
-    const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
-
     // store new user in database
     const slug = await generateUsernameSlug(username);
     const newUser = User.create({
       email,
       username,
-      password: hashedPassword,
+      password: Password.hash(password),
       slug,
     });
     await newUser!.save();
@@ -126,8 +119,7 @@ export const changePassword = async (
       throw new ServerError();
     }
 
-    const hashedPassword = bcrypt.hashSync(newPassword, SALT_ROUNDS);
-    user.password = hashedPassword;
+    user.password = Password.hash(newPassword);
     await user.save();
 
     res
@@ -175,7 +167,7 @@ export const forgotPassword = async (
       await olderToken.remove();
     }
 
-    const token = generateUniqueToken();
+    const token = Token.generate();
 
     const forgotToken = ForgotPasswordToken.create({
       user,
@@ -229,8 +221,7 @@ export const resetPassword = async (
       throw new ServerError();
     }
 
-    const newHashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
-    user.password = newHashedPassword;
+    user.password = Password.hash(password);
     await user.save();
     await userToken.remove();
 
