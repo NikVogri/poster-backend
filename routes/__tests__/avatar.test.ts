@@ -33,7 +33,7 @@ it("/add -> should change avatar on image upload", async () => {
   await request
     .post(`/api/v1/user/avatar/add`)
     .set("Cookie", userCookie)
-    .attach("avatar", mockImage())
+    .attach("avatar", image)
     .expect(200);
 
   await user!.reload();

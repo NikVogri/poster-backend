@@ -99,7 +99,7 @@ it("/add -> returns a 400 if the slug for the page is incorrect when adding memb
     .expect(400);
 });
 
-it("/all -> returns a list of all members of the page", async () => {
+it("/all -> returns a list of all members of the page to owner ", async () => {
   const addToMembersEmail1 = "bob@bob.com";
   const addToMembersEmail2 = "ziggy@ziggy.com";
 
@@ -129,7 +129,29 @@ it("/all -> returns a list of all members of the page", async () => {
   expect(res.body.members.length).toBe(2);
 });
 
-it("/remove -> can remove a user from the page", async () => {
+it("/all -> returns a 400 if the user is not an owner of the page", async () => {
+  const addToMembersEmail = "bob@bob.com";
+  const ownerCookie = await loginUser("jane", "jane@jane.com");
+  const page = await createPage("my own page", ownerCookie);
+
+  await createUser("bob", addToMembersEmail);
+
+  await request
+    .post(`/api/v1/pages/${page.slug}/members/add`)
+    .set("Cookie", ownerCookie)
+    .send({ email: addToMembersEmail })
+    .expect(200);
+
+  const randomUser = await loginUser("ziggy", "ziggy@ziggy.com");
+
+  await request
+    .get(`/api/v1/pages/${page.slug}/members`)
+    .set("Cookie", randomUser)
+    .send()
+    .expect(403);
+});
+
+it("/remove -> allows owner to remove a member from the page", async () => {
   const addToMembersEmail1 = "bob@bob.com";
   const addToMembersEmail2 = "ziggy@ziggy.com";
 
@@ -171,7 +193,52 @@ it("/remove -> can remove a user from the page", async () => {
   expect(res.body.members.length).toBe(1);
 });
 
-it("/leave -> allows a page member to leave page membership", async () => {
+it("/remove -> allows owner to remove a member from the page", async () => {
+  const addToMembersEmail1 = "bob@bob.com";
+  const addToMembersEmail2 = "ziggy@ziggy.com";
+
+  const ownerCookie = await loginUser("jane", "jane@jane.com");
+  await createUser("bob", addToMembersEmail1);
+  await createUser("ziggy", addToMembersEmail2);
+
+  const page = await createPage("my own page", ownerCookie);
+
+  await request
+    .post(`/api/v1/pages/${page.slug}/members/add`)
+    .set("Cookie", ownerCookie)
+    .send({ email: addToMembersEmail1 })
+    .expect(200);
+
+  await request
+    .post(`/api/v1/pages/${page.slug}/members/add`)
+    .set("Cookie", ownerCookie)
+    .send({ email: addToMembersEmail2 })
+    .expect(200);
+
+  let res = await request
+    .get(`/api/v1/pages/${page.slug}/members`)
+    .set("Cookie", ownerCookie)
+    .send();
+
+  expect(res.body.members.length).toBe(2);
+
+  const otherCookie = await loginUser("john", "john@john.com");
+
+  await request
+    .delete(`/api/v1/pages/${page.slug}/members/remove`)
+    .set("Cookie", otherCookie)
+    .send({ email: addToMembersEmail1 })
+    .expect(403); // user is not an owner
+
+  res = await request
+    .get(`/api/v1/pages/${page.slug}/members`)
+    .set("Cookie", ownerCookie)
+    .send();
+
+  expect(res.body.members.length).toBe(2);
+});
+
+it("/leave -> allows a page member to leave page", async () => {
   const ownerCookie = await loginUser();
   await createUser("bob", "bob@gmail.com", "password");
   let page = await createPage("a page", ownerCookie);
@@ -202,6 +269,18 @@ it("/leave -> allows a page member to leave page membership", async () => {
   expect(
     page.members.some((a: { email: string }) => a.email == "bob@gmail.com")
   ).toBeFalsy();
+});
+
+it("/leave -> returns a 400 if the owner wants to leave the page", async () => {
+  const ownerCookie = await loginUser();
+  await createUser("bob", "bob@gmail.com", "password");
+  let page = await createPage("a page", ownerCookie);
+
+  await request // member leaves page
+    .post(`/api/v1/pages/${page.slug}/members/leave`)
+    .set("Cookie", ownerCookie)
+    .send()
+    .expect(400);
 });
 
 it("/leave -> returns a 400 if the user that wants to leave is not a member of the page", async () => {

@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import app from "../../app";
 import { Page } from "../../database/entity/Page";
-import { loginUser, createPage } from "../../tests/setup";
+import { loginUser, createPage, createUser } from "../../tests/setup";
 
 const request = supertest(app);
 
@@ -98,12 +98,20 @@ it("/:slug -> deletes a page if the user is owner of that page", async () => {
   expect(pages.length).toEqual(0);
 });
 
-it("/:slug -> returns a single page with owner", async () => {
+it("/:slug -> returns a single page with owner and members", async () => {
+  const memberEmail = "jane@jane.com";
+  await createUser("jane", memberEmail);
   const pageTitle = "my page title";
   const username = "nickolas";
   const cookie = await loginUser(username);
 
   const page = await createPage(pageTitle, cookie);
+
+  await request
+    .post(`/api/v1/pages/${page.slug}/members/add`)
+    .set("Cookie", cookie)
+    .send({ email: memberEmail })
+    .expect(200);
 
   const res = await request
     .get(`/api/v1/pages/${page.slug}`)
@@ -113,4 +121,7 @@ it("/:slug -> returns a single page with owner", async () => {
 
   expect(res.body.page.title).toEqual(pageTitle);
   expect(res.body.page.owner.username).toEqual(username);
+  expect(
+    res.body.page.members.some((member) => member.email == memberEmail)
+  ).toBeTruthy();
 });
