@@ -18,6 +18,7 @@ router.put(
   pageController.update
 );
 router.delete("/:slug", checkAuth, onlyOwner as any, pageController.remove);
+
 router.get(
   "/:slug",
   checkAuth,
