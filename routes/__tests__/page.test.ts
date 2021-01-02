@@ -127,12 +127,17 @@ it("/:slug -> returns a single page with owner and members", async () => {
 });
 it("/:slug returns a 403 if the user is not a member or owner", async () => {
   const ownerCookie = await loginUser("jane", "jane@jane.com");
-  const page = await createPage("my page", ownerCookie);
+
+  const res = await request
+    .post(`/api/v1/pages`)
+    .set("Cookie", ownerCookie)
+    .send({ title: "my new page", isPrivate: true })
+    .expect(201);
 
   const randomCookie = await loginUser("bob", "bob@bob.com");
 
   await request
-    .get(`/api/v1/pages/${page.slug}`)
+    .get(`/api/v1/pages/${res.body.page.slug}`)
     .set("Cookie", randomCookie)
     .send()
     .expect(403);

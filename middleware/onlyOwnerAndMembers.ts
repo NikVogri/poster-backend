@@ -30,11 +30,12 @@ const onlyOwnerOrMember = async (
 
     // checks if user is member or owner of the page
     console.log(page.owner.id !== req.user.id);
+    console.log(page.members.some((member: any) => (member.id = req.user.id)));
     if (
       !page.members.some((member: any) => (member.id = req.user.id)) &&
       page.owner.id !== req.user.id
     ) {
-      throw new UnauthorizedError("You are not a member of this page");
+      throw new UnauthorizedError("You are not a member of this page", 403);
     }
 
     req.page = page;
