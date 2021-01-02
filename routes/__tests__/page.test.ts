@@ -106,12 +106,13 @@ it("/:slug -> deletes a page if the user is owner of that page", async () => {
   expect(pages.length).toEqual(0);
 });
 
-it("/:slug -> returns a single page with owner and members", async () => {
+it("/:slug -> returns a single page with members anyone authenticated if the page is not private", async () => {
   const memberEmail = "jane@jane.com";
   await createUser("jane", memberEmail);
   const pageTitle = "my page title";
   const username = "nickolas";
   const cookie = await loginUser(username);
+  const randomCookie = await loginUser();
 
   const page = await createPage(pageTitle, cookie);
 
@@ -123,7 +124,7 @@ it("/:slug -> returns a single page with owner and members", async () => {
 
   const res = await request
     .get(`/api/v1/pages/${page.slug}`)
-    .set("Cookie", cookie)
+    .set("Cookie", randomCookie)
     .send()
     .expect(200);
 
@@ -133,7 +134,26 @@ it("/:slug -> returns a single page with owner and members", async () => {
     res.body.page.members.some((member) => member.email == memberEmail)
   ).toBeTruthy();
 });
-it("/:slug returns a 403 if the user is not a member or owner", async () => {
+
+it("/:slug returns a page and members if the user is a member or owner and the page is private", async () => {
+  const ownerCookie = await loginUser("jane", "jane@jane.com");
+
+  const res = await request
+    .post(`/api/v1/pages`)
+    .set("Cookie", ownerCookie)
+    .send({ title: "my new page", isPrivate: true })
+    .expect(201);
+
+  const randomCookie = await loginUser("bob", "bob@bob.com");
+
+  await request
+    .get(`/api/v1/pages/${res.body.page.slug}`)
+    .set("Cookie", randomCookie)
+    .send()
+    .expect(403);
+});
+
+it("/:slug returns a 403 if the user is not a member or owner and the page is private", async () => {
   const ownerCookie = await loginUser("jane", "jane@jane.com");
 
   const res = await request
