@@ -29,8 +29,6 @@ const onlyOwnerOrMember = async (
     }
 
     // checks if user is member or owner of the page
-    console.log(page.owner.id !== req.user.id);
-    console.log(page.members.some((member: any) => (member.id = req.user.id)));
     if (
       !page.members.some((member: any) => (member.id = req.user.id)) &&
       page.owner.id !== req.user.id
@@ -41,7 +39,6 @@ const onlyOwnerOrMember = async (
     req.page = page;
     next();
   } catch (err) {
-    console.log("ere");
     next(err);
   }
 };
