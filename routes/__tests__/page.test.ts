@@ -41,13 +41,20 @@ it("/ -> can't create a page when isPrivate is not sent", async () => {
     .expect(400);
 });
 
-it("/all/:slug -> can get all pages for only a specific user", async () => {
+it("/all/:slug -> should get pages that the user is owner and member of", async () => {
   const nicksCookie = await loginUser("nick", "nick@nick.com");
+  const janesCookie = await loginUser("jane", "jane@jane.com");
   const otherCookie = await loginUser("bob", "bob@bob.com");
 
-  await createPage("my first page", nicksCookie); //  Nicks page
-  await createPage("my second page", nicksCookie); //  Nicks page
-  await createPage("my third page", otherCookie); // Other use page -> should not get returned
+  await createPage("nicks page", nicksCookie); //  Nicks page
+  const janePage = await createPage("janes page", janesCookie); //  Janes page
+  await createPage("bobs page", otherCookie); // Other use page -> should not get returned
+
+  await request
+    .post(`/api/v1/pages/${janePage.slug}/members/add`)
+    .set("Cookie", janesCookie)
+    .send({ email: "nick@nick.com" })
+    .expect(200);
 
   const res = await request
     .get(`/api/v1/pages/all`)
@@ -55,7 +62,8 @@ it("/all/:slug -> can get all pages for only a specific user", async () => {
     .send()
     .expect(200);
 
-  expect(res.body.pages.length).toEqual(2);
+  expect(res.body.pages[0].title).toEqual("nicks page");
+  expect(res.body.pages[1].title).toEqual("janes page");
 });
 
 it("/:slug -> returns 403 if the user is not the owner of the page", async () => {

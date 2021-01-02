@@ -15,9 +15,12 @@ export const getAll = async (req: UserRequest, res: Response) => {
   }
 
   const pages = await Page.createQueryBuilder("page")
-    .where(`page.ownerId = :id`, {
+    .leftJoinAndSelect("page.members", "member")
+    .where("member.id = :id", { id })
+    .orWhere(`page.ownerId = :id`, {
       id,
     })
+    .orderBy('"updatedAt"', "DESC")
     .getMany();
 
   return res.send({
