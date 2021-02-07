@@ -7,11 +7,15 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "./User";
+
+enum Type {
+  Todo,
+  Notebook,
+}
 
 @Entity("pages")
 export class Page extends BaseEntity {
@@ -58,4 +62,11 @@ export class Page extends BaseEntity {
   @ManyToMany(() => User, { cascade: true })
   @JoinTable()
   members: User[];
+
+  @Column({
+    nullable: false,
+    enum: Type,
+    default: "notebook",
+  })
+  type: string;
 }

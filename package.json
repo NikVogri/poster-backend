@@ -6,7 +6,7 @@
    "scripts": {
       "start:dev": "nodemon --config nodemon.json index.ts",
       "build": "tsc",
-      "start": "ts-node src/index.ts",
+      "start": "ts-node dist/index.js",
       "test": "jest"
    },
    "keywords": [

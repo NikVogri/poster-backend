@@ -37,10 +37,12 @@ export const create = async (
   try {
     if (req.user) {
       const { id } = req.user;
-      const { title, isPrivate } = req.body as any;
+      const { title, isPrivate, pageType } = req.body as any;
 
-      if (!title || typeof isPrivate !== "boolean") {
-        throw new BadRequestError("Please provide title and private type");
+      if (!title || typeof isPrivate !== "boolean" || !pageType) {
+        throw new BadRequestError(
+          "Please provide title, pageType and isPrivate"
+        );
       }
 
       const user = await User.findOne({ id });
@@ -53,6 +55,7 @@ export const create = async (
         title,
         private: isPrivate,
         owner: user,
+        type: pageType,
         slug: await generatePageSlug(),
       });
 
