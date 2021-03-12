@@ -11,12 +11,6 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "./User";
-
-enum Type {
-  Todo,
-  Notebook,
-}
-
 @Entity("pages")
 export class Page extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -65,7 +59,6 @@ export class Page extends BaseEntity {
 
   @Column({
     nullable: false,
-    enum: Type,
     default: "notebook",
   })
   type: string;

@@ -8,7 +8,7 @@ import BadRequestError from "../errors/BadRequestError";
 import ServerError from "../errors/ServerError";
 import UnauthorizedError from "../errors/UnauthorizedError";
 import Password from "../helpers/Password";
-import Token from "../helpers/Token";
+import Token from "../helpers/token";
 
 declare module "express-session" {
   interface Session {

@@ -6,13 +6,15 @@ import { Page } from "../database/entity/Page";
 import { createConnection, getConnection } from "typeorm";
 
 import path from "path";
+import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
+import { PageType } from "../config/page";
 
 beforeEach(async () => {
   return await createConnection({
     type: "sqlite",
     database: ":memory:",
     dropSchema: true,
-    entities: [User, Page],
+    entities: [User, ForgotPasswordToken, Page],
     synchronize: true,
     logging: false,
   });
@@ -50,12 +52,13 @@ export const loginUser = async (
 export const createPage = async (
   title: string,
   cookie?: string,
-  isPrivate: boolean = false
+  isPrivate: boolean = false,
+  pageType: string = PageType.Notebook,
 ): Promise<any> => {
   const res = await request(app)
     .post("/api/v1/pages")
     .set("Cookie", cookie || (await loginUser()))
-    .send({ title, isPrivate });
+    .send({ title, isPrivate, pageType });
 
   return res.body.page;
 };

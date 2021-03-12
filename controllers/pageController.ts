@@ -7,6 +7,7 @@ import BadRequestError from "../errors/BadRequestError";
 import NotFoundError from "../errors/NotFoundError";
 import ServerError from "../errors/ServerError";
 
+
 export const getAll = async (req: UserRequest, res: Response) => {
   const { id } = req.user;
 
@@ -37,11 +38,11 @@ export const create = async (
   try {
     if (req.user) {
       const { id } = req.user;
-      const { title, isPrivate, pageType } = req.body as any;
+      let { title, isPrivate, pageType} = req.body as any;
 
-      if (!title || typeof isPrivate !== "boolean" || !pageType) {
+      if (!title || typeof isPrivate !== "boolean") {
         throw new BadRequestError(
-          "Please provide title, pageType and isPrivate"
+          "Please provide title and isPrivate"
         );
       }
 

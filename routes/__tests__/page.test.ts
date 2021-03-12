@@ -57,7 +57,7 @@ it("/all/:slug -> should get pages that the user is owner and member of", async 
     .expect(200);
 
   const res = await request
-    .get(`/api/v1/pages/all`)
+    .get(`/api/v1/pages/all`) 
     .set("Cookie", nicksCookie)
     .send()
     .expect(200);

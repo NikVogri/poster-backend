@@ -18,7 +18,8 @@
       "testEnvironment": "node",
       "setupFilesAfterEnv": [
          "./tests/setup.ts"
-      ]
+      ],
+      "testPathIgnorePatterns": [".js"]
    },
    "author": "Nik Vogrinec",
    "license": "MIT",
