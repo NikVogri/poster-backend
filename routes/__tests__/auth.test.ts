@@ -58,7 +58,7 @@ it("/login -> returns a 401 when user tries to login with incorrect credentials"
   expect(res.headers["set-cookie"]).not.toBeNull();
 });
 
-it("/logout -> removes cookie from user to log them out", async () => {
+it("/logout -> remove cookie from user to log them out", async () => {
   await request
     .post("/api/v1/auth/logout")
     .set("Cookie", await loginUser())
