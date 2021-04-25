@@ -1,138 +1,166 @@
 import { Response, NextFunction, Request } from "express";
 import { UserRequest } from "../interfaces/expressInterface";
-import { generatePageSlug } from "../helpers/generateSlug";
 import { Page } from "../database/entity/Page";
 import { User } from "../database/entity/User";
+import { PageType } from "../config/page";
+import { Notebook } from "../database/entity/Notebook";
+import { Todo } from "../database/entity/Todo";
+
 import BadRequestError from "../errors/BadRequestError";
 import NotFoundError from "../errors/NotFoundError";
 import ServerError from "../errors/ServerError";
 
-
 export const getAll = async (req: UserRequest, res: Response) => {
-  const { id } = req.user;
+	const { id } = req.user;
 
-  if (!id) {
-    throw new ServerError();
-  }
+	if (!id) {
+		throw new ServerError();
+	}
 
-  const pages = await Page.createQueryBuilder("page")
-    .leftJoinAndSelect("page.members", "member")
-    .where("member.id = :id", { id })
-    .orWhere(`page.ownerId = :id`, {
-      id,
-    })
-    .orderBy('"updatedAt"', "DESC")
-    .getMany();
+	const pages = await Page.createQueryBuilder("page")
+		.leftJoinAndSelect("page.members", "member")
+		.where("member.id = :id", { id })
+		.orWhere(`page.ownerId = :id`, {
+			id,
+		})
+		.orderBy('"updatedAt"', "DESC")
+		.getMany();
 
-  return res.send({
-    success: true,
-    pages,
-  }) as any;
+	return res.send({
+		success: true,
+		pages,
+	}) as any;
 };
 
 export const create = async (
-  req: UserRequest,
-  res: Response,
-  next: NextFunction
+	req: UserRequest,
+	res: Response,
+	next: NextFunction
 ) => {
-  try {
-    if (req.user) {
-      const { id } = req.user;
-      let { title, isPrivate, pageType} = req.body as any;
+	try {
+		const errors: string[] = [];
 
-      if (!title || typeof isPrivate !== "boolean") {
-        throw new BadRequestError(
-          "Please provide title and isPrivate"
-        );
-      }
+		const { id } = req.user;
+		let { title, isPrivate, type } = req.body as any;
 
-      const user = await User.findOne({ id });
+		if (!title || typeof title !== "string") {
+			errors.push("Please provide correct title");
+		}
 
-      if (!user) {
-        throw new ServerError();
-      }
+		if (typeof isPrivate !== "boolean") {
+			errors.push("Please provide private status");
+		}
 
-      const page = Page.create({
-        title,
-        private: isPrivate,
-        owner: user,
-        type: pageType,
-        slug: await generatePageSlug(),
-      });
+		if (!type || !Object.values(PageType).includes(type)) {
+			errors.push("Please provide a correct page type");
+		}
 
-      await page.save();
+		if (errors.length > 0) {
+			return res.status(400).send({ success: false, error: errors });
+		}
 
-      return res.status(201).send({
-        success: true,
-        page,
-      });
-    } else {
-      throw new ServerError();
-    }
-  } catch (err) {
-    next(err);
-  }
+		const user = await User.findOne({ id });
+
+		if (!user) {
+			throw new BadRequestError("User not found");
+		}
+
+		const page = Page.create({
+			type,
+			title,
+			owner: user,
+			private: isPrivate,
+		});
+
+		if (type === PageType.Notebook) {
+			page.notebook = await Notebook.create({ title }).save();
+		} else if (type == PageType.Todo) {
+			page.todo = await Todo.create({ title }).save();
+		}
+
+		await page.save();
+
+		return res.status(201).send({
+			success: true,
+			page: {
+				id: page.id,
+				title: page.title,
+				createdAt: page.createdAt,
+			},
+		});
+	} catch (err) {
+		next(err);
+	}
 };
 
 export const remove = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+	req: UserRequest,
+	res: Response,
+	next: NextFunction
 ) => {
-  try {
-    const { slug } = req.params;
+	try {
+		const { id } = req.params;
 
-    if (!slug) {
-      throw new BadRequestError("Provide id for page to be deleted");
-    }
+		if (!id) {
+			throw new BadRequestError("Provide id for page to be deleted");
+		}
 
-    await Page.delete({ slug });
+		const page = await Page.findOne({ id });
 
-    res.send({ success: true });
-  } catch (err) {
-    return next(err);
-  }
+		if (!page) {
+			throw new BadRequestError("Page not found");
+		}
+
+		await Page.delete({ id });
+
+		res.send({ success: true });
+	} catch (err) {
+		return next(err);
+	}
 };
 
 export const getSingle = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+	req: Request,
+	res: Response,
+	next: NextFunction
 ) => {
-  try {
-    const { slug } = req.params;
+	try {
+		const { id } = req.params;
+		const page = await Page.findOne({ id }, { relations: ["owner", "members"] });
 
-    const page = await Page.findOne(
-      { slug },
-      { relations: ["members", "owner"] }
-    );
+		if (!page) {
+			throw new NotFoundError("Page not found");
+		}
 
-    if (!page) {
-      throw new NotFoundError("Page not found");
-    }
-    return res.status(200).send({ success: true, page });
-  } catch (err) {
-    next(err);
-  }
+		return res.status(200).send({ success: true, page });
+	} catch (err) {
+		next(err);
+	}
 };
 
 export const update = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { slug } = req.params;
-    const { data } = req.body;
+	req: UserRequest,
+	res: Response,
+	next: NextFunction
+) => {};
 
-    if (!data) {
-      throw new BadRequestError("Provide data to store");
-    }
+// export const update = async (
+// 	req: Request,
+// 	res: Response,
+// 	next: NextFunction
+// ) => {
+// 	try {
+// 		const { id } = req.params;
+// 		const { data } = req.body;
 
-    await Page.update({ slug }, { content: data });
+// 		if (!data) {
+// 			throw new BadRequestError("Provide data to store");
+// 		}
 
-    res.send({ success: true, lastUpdateTime: new Date() });
-  } catch (err) {
-    next(err);
-  }
-};
+// 		// await Page.update({ id });
+
+// 		res.send({ success: true, lastUpdateTime: new Date() });
+// 	} catch (err) {
+// 		next(err);
+// 	}
+// };

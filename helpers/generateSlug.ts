@@ -17,19 +17,3 @@ export const generateUsernameSlug = async (
 
   return usernameSlug;
 };
-
-export const generatePageSlug = async (): Promise<string> => {
-  let pageSlug = "";
-
-  pageSlug = crypto.randomBytes(12).toString("hex");
-
-  const pagesWithSameSlugCount = await Page.count({
-    slug: Like(`${pageSlug}%`),
-  });
-
-  if (pagesWithSameSlugCount > 0) {
-    pageSlug = `${pageSlug}-${pagesWithSameSlugCount}`;
-  }
-
-  return pageSlug;
-};

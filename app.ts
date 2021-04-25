@@ -19,6 +19,10 @@ import { ForgotPasswordToken } from "./database/entity/ForgotPasswordToken";
 import { Page } from "./database/entity/Page";
 
 import errorHandler from "./middleware/errorHandler";
+import { Notebook } from "./database/entity/Notebook";
+import { NotebookBlock } from "./database/entity/NotebookBlock";
+import { Todo } from "./database/entity/Todo";
+import { TodoItem } from "./database/entity/TodoItem";
 
 const app = express();
 
@@ -35,7 +39,15 @@ const main = async () => {
 			url: process.env.DATABASE_URL,
 			logging: __dev__,
 			synchronize: true,
-			entities: [User, ForgotPasswordToken, Page],
+			entities: [
+				User,
+				ForgotPasswordToken,
+				Page,
+				Notebook,
+				NotebookBlock,
+				Todo,
+				TodoItem,
+			],
 		}).catch((err) => {
 			throw new Error(err);
 		});
