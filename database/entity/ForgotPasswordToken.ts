@@ -1,29 +1,37 @@
 import {
-  Entity,
-  Column,
-  BaseEntity,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  OneToOne,
-  JoinColumn,
+	Entity,
+	Column,
+	BaseEntity,
+	PrimaryGeneratedColumn,
+	CreateDateColumn,
+	OneToOne,
+	JoinColumn,
+	BeforeInsert,
 } from "typeorm";
 import { User } from "./User";
 
-@Entity("forgotPasswordTokens")
+import { v4 as uuid } from "uuid";
+
+@Entity("forgotpasswordtokens")
 export class ForgotPasswordToken extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@PrimaryGeneratedColumn()
+	id: string;
 
-  @Column({
-    unique: true,
-    nullable: false,
-  })
-  token: string;
+	@Column({
+		unique: true,
+		nullable: false,
+	})
+	token: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+	@CreateDateColumn()
+	createdAt: Date;
 
-  @OneToOne(() => User)
-  @JoinColumn()
-  user: User;
+	@OneToOne(() => User)
+	@JoinColumn({ name: "userId" })
+	user: User;
+
+	@BeforeInsert()
+	setId() {
+		this.id = uuid();
+	}
 }

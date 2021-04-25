@@ -1,65 +1,80 @@
 import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+	BaseEntity,
+	BeforeInsert,
+	Column,
+	CreateDateColumn,
+	Entity,
+	JoinColumn,
+	JoinTable,
+	ManyToMany,
+	ManyToOne,
+	OneToOne,
+	PrimaryColumn,
+	UpdateDateColumn,
 } from "typeorm";
 import { User } from "./User";
+
+import { v4 as uuid } from "uuid";
+import { Todo } from "./Todo";
+import { Notebook } from "./Notebook";
+
+export enum PageType {
+	notebook = "notebook",
+	todo = "todo",
+}
 @Entity("pages")
 export class Page extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@PrimaryColumn()
+	id: string;
 
-  @Column({
-    nullable: false,
-  })
-  title: string;
+	@Column({ nullable: false })
+	title: string;
 
-  @Column({
-    nullable: false,
-  })
-  @Column({
-    nullable: false,
-  })
-  private: boolean;
+	@Column({ nullable: false })
+	private: boolean;
 
-  @Column({
-    nullable: false,
-    unique: true,
-  })
-  slug: string;
+	@Column({ default: false })
+	deleted: boolean;
 
-  @Column("simple-json", { nullable: true })
-  content: {};
+	@CreateDateColumn()
+	createdAt: Date;
 
-  @Column({
-    default: false,
-  })
-  deleted: boolean;
+	@UpdateDateColumn()
+	updatedAt: Date;
 
-  @CreateDateColumn()
-  createdAt: Date;
+	@Column({ nullable: false })
+	ownerId: string;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+	@Column({ nullable: true })
+	todoId: string;
 
-  @ManyToOne(() => User)
-  @JoinColumn()
-  owner: User;
+	@Column({ nullable: true })
+	notebookId: string;
 
-  @ManyToMany(() => User, { cascade: true })
-  @JoinTable()
-  members: User[];
+	@ManyToOne(() => User, (owner) => owner.pages)
+	@JoinColumn({ name: "ownerId" })
+	owner: User;
 
-  @Column({
-    nullable: false,
-    default: "notebook",
-  })
-  type: string;
+	@ManyToMany(() => User, { cascade: true })
+	@JoinTable()
+	members: User[];
+
+	@OneToOne(() => Todo, { nullable: true })
+	@JoinColumn({ name: "todoId" })
+	todo: Todo;
+
+	@OneToOne(() => Notebook, { nullable: true })
+	@JoinColumn({ name: "notebookId" })
+	notebook: Notebook;
+
+	@Column({
+		nullable: false,
+		default: PageType.notebook,
+	})
+	type: string;
+
+	@BeforeInsert()
+	setId() {
+		this.id = uuid();
+	}
 }
