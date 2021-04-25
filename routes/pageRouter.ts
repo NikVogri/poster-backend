@@ -7,23 +7,29 @@ import onlyOwnerAndMembers from "../middleware/onlyOwnerAndMembers";
 
 const router = express.Router();
 
-router.use("/:slug/members", membersRouter);
+router.use("/:id/members", membersRouter);
 
 router.get("/all", checkAuth, pageController.getAll as any);
 router.post("/", checkAuth, pageController.create as any);
-router.put(
-  "/:slug",
-  checkAuth,
-  onlyOwnerAndMembers as any,
-  pageController.update
+// router.put(
+// 	"/:id",
+// 	checkAuth,
+// 	onlyOwnerAndMembers as any,
+// 	pageController.update
+// );
+
+router.delete(
+	"/:id",
+	checkAuth,
+	onlyOwner as any,
+	pageController.remove as any
 );
-router.delete("/:slug", checkAuth, onlyOwner as any, pageController.remove);
 
 router.get(
-  "/:slug",
-  checkAuth,
-  onlyOwnerAndMembers as any,
-  pageController.getSingle
+	"/:id",
+	checkAuth,
+	onlyOwnerAndMembers as any,
+	pageController.getSingle
 );
 
 export default router;
