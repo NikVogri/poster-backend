@@ -19,11 +19,14 @@
       "setupFilesAfterEnv": [
          "./tests/setup.ts"
       ],
-      "testPathIgnorePatterns": [".js"]
+      "testPathIgnorePatterns": [
+         ".js"
+      ]
    },
    "author": "Nik Vogrinec",
    "license": "MIT",
    "dependencies": {
+      "@types/uuid": "^8.3.0",
       "bcrypt": "^5.0.0",
       "cloudinary": "^1.23.0",
       "cookie-parser": "^1.4.5",
@@ -39,7 +42,8 @@
       "reflect-metadata": "^0.1.10",
       "session": "^0.1.0",
       "slugify": "^1.4.6",
-      "typeorm": "0.2.29"
+      "typeorm": "0.2.29",
+      "uuid": "^8.3.2"
    },
    "devDependencies": {
       "@types/bcrypt": "^3.0.0",
