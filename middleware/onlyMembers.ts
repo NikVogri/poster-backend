@@ -5,33 +5,33 @@ import UnauthorizedError from "../errors/UnauthorizedError";
 import { UserRequest } from "../interfaces/expressInterface";
 
 interface PageRequest extends UserRequest {
-  page: null | {};
+	page: null | {};
 }
 
 const isPrivate = async (req: PageRequest, _: Response, next: NextFunction) => {
-  const { slug } = req.params;
-  try {
-    const page = await Page.findOne({ slug }, { relations: ["members"] });
-    if (!page) {
-      throw new NotFoundError("Page could not be found");
-    }
+	const { id } = req.params;
+	try {
+		const page = await Page.findOne({ id }, { relations: ["members"] });
 
-    // check if page is not private -> can be accessed by anyone
-    if (!page.private) {
-      return next();
-    }
+		if (!page) {
+			throw new NotFoundError("Page could not be found");
+		}
 
-    // checks if user is member of page
-    if (!page.members.some((member: any) => (member.id = req.user.id))) {
-      throw new UnauthorizedError("You are not a member of this page");
-    }
+		// check if page is not private -> can be accessed by anyone
+		if (!page.private) {
+			return next();
+		}
 
-    req.page = page;
-    next();
-  } catch (err) {
-    console.log("ere");
-    next(err);
-  }
+		// checks if user is member of page
+		if (!page.members.some((member: any) => (member.id = req.user.id))) {
+			throw new UnauthorizedError("You are not a member of this page");
+		}
+
+		req.page = page;
+		next();
+	} catch (err) {
+		next(err);
+	}
 };
 
 export default isPrivate;
