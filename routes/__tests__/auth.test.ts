@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import app from "../../app";
 import { User } from "../../database/entity/User";
-import { createUser, loginUser } from "../../tests/setup";
+import { loginUser } from "../../tests/setup";
 
 const request = supertest(app);
 
