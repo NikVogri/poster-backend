@@ -19,6 +19,7 @@ export const getAll = async (req: UserRequest, res: Response) => {
 
 	const pages = await Page.createQueryBuilder("page")
 		.leftJoinAndSelect("page.members", "member")
+		.leftJoinAndSelect("page.owner", "owner")
 		.where("member.id = :id", { id })
 		.orWhere(`page.ownerId = :id`, {
 			id,
@@ -126,7 +127,10 @@ export const getSingle = async (
 ) => {
 	try {
 		const { id } = req.params;
-		const page = await Page.findOne({ id }, { relations: ["owner", "members"] });
+		const page = await Page.findOne(
+			{ id },
+			{ relations: ["owner", "members"] }
+		);
 
 		if (!page) {
 			throw new NotFoundError("Page not found");
