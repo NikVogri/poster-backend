@@ -104,11 +104,7 @@ export const logoutUser = async (
 	next: NextFunction
 ) => {
 	try {
-		if (!req.user) {
-			throw new BadRequestError("You are not logged in");
-		}
-
-		req.session.destroy((err) => {
+		req.session.destroy((err: Error) => {
 			if (err) {
 				throw new ServerError();
 			}
