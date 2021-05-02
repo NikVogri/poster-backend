@@ -1,4 +1,5 @@
 import {
+	AfterLoad,
 	BaseEntity,
 	BeforeInsert,
 	Column,
@@ -8,6 +9,7 @@ import {
 	JoinTable,
 	ManyToMany,
 	ManyToOne,
+	OneToMany,
 	OneToOne,
 	PrimaryColumn,
 	UpdateDateColumn,
@@ -45,12 +47,6 @@ export class Page extends BaseEntity {
 	@Column({ nullable: false })
 	ownerId: string;
 
-	@Column({ nullable: true })
-	todoId: string;
-
-	@Column({ nullable: true })
-	notebookId: string;
-
 	@ManyToOne(() => User, (owner) => owner.pages)
 	@JoinColumn({ name: "ownerId" })
 	owner: User;
@@ -59,19 +55,24 @@ export class Page extends BaseEntity {
 	@JoinTable()
 	members: User[];
 
-	@OneToOne(() => Todo, { nullable: true })
-	@JoinColumn({ name: "todoId" })
-	todo: Todo;
+	@OneToMany(() => Todo, (todo) => todo.page, { nullable: true })
+	todos: Todo[];
 
-	@OneToOne(() => Notebook, { nullable: true })
-	@JoinColumn({ name: "notebookId" })
-	notebook: Notebook;
+	@OneToMany(() => Notebook, (notebook) => notebook.page, { nullable: true })
+	notebooks: Notebook[];
 
 	@Column({
 		nullable: false,
 		default: PageType.notebook,
 	})
 	type: string;
+
+	@Column({
+		type: "simple-json",
+		nullable: true,
+		default: { active: false, height: 0, url: "" },
+	})
+	banner: { active: boolean; height: number; url: string };
 
 	@BeforeInsert()
 	setId() {

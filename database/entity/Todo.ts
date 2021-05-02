@@ -5,6 +5,7 @@ import {
 	CreateDateColumn,
 	Entity,
 	JoinColumn,
+	ManyToOne,
 	OneToMany,
 	OneToOne,
 	PrimaryColumn,
@@ -25,7 +26,7 @@ export class Todo extends BaseEntity {
 	@UpdateDateColumn()
 	updatedAt: Date;
 
-	@Column()
+	@Column({ nullable: true, default: "My todo block" })
 	title: string;
 
 	@Column({ default: false })
@@ -33,6 +34,9 @@ export class Todo extends BaseEntity {
 
 	@OneToMany(() => TodoItem, (todoItem) => todoItem.todo)
 	items: TodoItem[];
+
+	@ManyToOne(() => Page, (page) => page.todos)
+	page: Page;
 
 	@BeforeInsert()
 	setId() {
