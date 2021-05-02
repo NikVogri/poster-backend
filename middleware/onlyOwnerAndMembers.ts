@@ -19,9 +19,12 @@ const onlyOwnerOrMember = async (
 			{ id },
 			{ relations: ["members", "owner"] }
 		);
+
 		if (!page) {
 			throw new NotFoundError("Page could not be found");
 		}
+
+		req.page = page;
 
 		// check if page is not private -> can be accessed by anyone
 		if (!page.private) {
@@ -38,8 +41,6 @@ const onlyOwnerOrMember = async (
 				403
 			);
 		}
-
-		req.page = page;
 		next();
 	} catch (err) {
 		next(err);
