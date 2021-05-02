@@ -10,6 +10,7 @@ const router = express.Router();
 router.use("/:id/members", membersRouter);
 
 router.get("/all", checkAuth, pageController.getAll as any);
+router.get("/other-pages", checkAuth, pageController.getOtherPages as any);
 router.post("/", checkAuth, pageController.create as any);
 // router.put(
 // 	"/:id",
@@ -30,6 +31,20 @@ router.get(
 	checkAuth,
 	onlyOwnerAndMembers as any,
 	pageController.getSingle
+);
+
+router.get(
+	"/:id/todos",
+	checkAuth,
+	onlyOwnerAndMembers as any,
+	pageController.getPageTodos as any
+);
+
+router.put(
+	"/:id/update-banner",
+	checkAuth,
+	onlyOwnerAndMembers as any,
+	pageController.updateBanner as any
 );
 
 export default router;
