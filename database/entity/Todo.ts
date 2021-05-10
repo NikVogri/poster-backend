@@ -29,6 +29,9 @@ export class Todo extends BaseEntity {
 	@Column({ nullable: true, default: "My todo block" })
 	title: string;
 
+	@Column({ nullable: true, default: "#fa5e5e" })
+	headerColor: string;
+
 	@Column({ default: false })
 	completed: boolean;
 
