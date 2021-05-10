@@ -2,12 +2,17 @@ import express from "express";
 import * as pageController from "../controllers/pageController";
 import checkAuth from "../middleware/checkAuth";
 import onlyOwner from "../middleware/onlyOwner";
+
 import membersRouter from "./membersRouter";
+import todoRouter from "./todoRouter";
+import notebookRouter from "./notebookRouter";
+
 import onlyOwnerAndMembers from "../middleware/onlyOwnerAndMembers";
 
 const router = express.Router();
 
 router.use("/:id/members", membersRouter);
+router.use("/:id/todo", todoRouter);
 
 router.get("/all", checkAuth, pageController.getAll as any);
 router.get("/other-pages", checkAuth, pageController.getOtherPages as any);
