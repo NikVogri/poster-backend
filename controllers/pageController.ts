@@ -117,6 +117,7 @@ export const getPageTodos = async (
 
 		const page = await Page.createQueryBuilder("page")
 			.leftJoinAndSelect("page.todos", "todo")
+			.orderBy("todo.createdAt", "DESC")
 			.leftJoinAndSelect("todo.items", "items")
 			.where({ id })
 			.getOne();
@@ -297,7 +298,7 @@ export const updateBanner = async (
 			await page.save();
 		}
 
-		res.status(200).send({ success: true,  });
+		res.status(200).send({ success: true });
 	} catch (err) {
 		console.log(err);
 		next(err);
