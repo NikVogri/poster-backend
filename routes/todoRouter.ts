@@ -6,12 +6,30 @@ import onlyOwnerOrMember from "../middleware/onlyOwnerAndMembers";
 const router = express.Router({ mergeParams: true });
 
 router.post(
-	"/add-todo-block",
+	"/",
 	checkAuth,
 	onlyOwnerOrMember as any,
 	todoController.addNewBlock as any
 );
-// router.post("/add-todo-task", todoController.);
-// router.put("/toggle-task", todoController.);
+router.put(
+	"/:todoId",
+	checkAuth,
+	onlyOwnerOrMember as any,
+	todoController.updateBlock as any
+);
+
+router.post(
+	"/:todoId/task",
+	checkAuth,
+	onlyOwnerOrMember as any,
+	todoController.addTask
+);
+
+router.put(
+	"/:todoId/task",
+	checkAuth,
+	onlyOwnerOrMember as any,
+	todoController.updateTask
+);
 
 export default router;
