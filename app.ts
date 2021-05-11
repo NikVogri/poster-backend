@@ -11,6 +11,7 @@ import cloudinary from "cloudinary";
 import pageRouter from "./routes/pageRouter";
 import authRouter from "./routes/authRouter";
 import userRouter from "./routes/userRouter";
+import todoRouter from "./routes/todoRouter";
 
 import { __dev__, __prod__, __test__ } from "./config/environment";
 import { createConnection } from "typeorm";
@@ -109,17 +110,15 @@ const main = async () => {
 	app.use("/api/v1/pages", pageRouter);
 	app.use("/api/v1/auth", authRouter);
 	app.use("/api/v1/user", userRouter);
+	app.use("/api/v1/todo", todoRouter);
 
 	// ERROR HANDLER
 	app.use(errorHandler as any);
 
 	// ROOT
-	app.get(
-		"/",
-		(_, res): RequestHandler => {
-			return res.send("Welcome to pager API") as any;
-		}
-	);
+	app.get("/", (_, res): RequestHandler => {
+		return res.send("Welcome to pager API") as any;
+	});
 };
 main();
 
