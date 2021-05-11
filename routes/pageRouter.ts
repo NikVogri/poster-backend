@@ -12,7 +12,7 @@ import onlyOwnerAndMembers from "../middleware/onlyOwnerAndMembers";
 const router = express.Router();
 
 router.use("/:id/members", membersRouter);
-router.use("/:id/todo", todoRouter);
+router.use("/:id/todos", todoRouter);
 
 router.get("/all", checkAuth, pageController.getAll as any);
 router.get("/other-pages", checkAuth, pageController.getOtherPages as any);
