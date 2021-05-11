@@ -29,11 +29,8 @@ export class TodoItem extends BaseEntity {
 	@Column({ default: false })
 	completed: boolean;
 
-	@Column()
-	todoId: string;
-
 	@ManyToOne(() => Todo, (todo) => todo.items)
-	@JoinColumn({ name: "todoId" })
+	@JoinColumn()
 	todo: Todo;
 
 	@BeforeInsert()
