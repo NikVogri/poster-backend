@@ -47,11 +47,11 @@ export class Page extends BaseEntity {
 	@Column({ nullable: false })
 	ownerId: string;
 
-	@ManyToOne(() => User, (owner) => owner.pages)
+	@ManyToOne(() => User, (owner) => owner.pages, { onDelete: "CASCADE" })
 	@JoinColumn({ name: "ownerId" })
 	owner: User;
 
-	@ManyToMany(() => User, { cascade: true })
+	@ManyToMany(() => User, { cascade: true, onDelete: "CASCADE" })
 	@JoinTable()
 	members: User[];
 
@@ -70,7 +70,7 @@ export class Page extends BaseEntity {
 	@Column({
 		type: "simple-json",
 		nullable: true,
-		default: { active: false, height: 0, url: "" },
+		default: JSON.stringify({ active: false, height: 0, url: "" }),
 	})
 	banner: { active: boolean; height: number; url: string };
 

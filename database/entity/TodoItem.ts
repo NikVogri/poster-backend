@@ -29,7 +29,7 @@ export class TodoItem extends BaseEntity {
 	@Column({ default: false })
 	completed: boolean;
 
-	@ManyToOne(() => Todo, (todo) => todo.items)
+	@ManyToOne(() => Todo, (todo) => todo.items, { onDelete: "CASCADE" })
 	@JoinColumn()
 	todo: Todo;
 

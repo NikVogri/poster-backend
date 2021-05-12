@@ -38,7 +38,7 @@ export class Todo extends BaseEntity {
 	@OneToMany(() => TodoItem, (todoItem) => todoItem.todo)
 	items: TodoItem[];
 
-	@ManyToOne(() => Page, (page) => page.todos)
+	@ManyToOne(() => Page, (page) => page.todos, { onDelete: "CASCADE" })
 	page: Page;
 
 	@BeforeInsert()

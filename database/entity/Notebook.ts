@@ -26,7 +26,7 @@ export class Notebook extends BaseEntity {
 	@Column({
 		type: "simple-json",
 		nullable: true,
-		default: { active: false, height: 0, url: "" },
+		default: JSON.stringify({ active: false, height: 0, url: "" }),
 	})
 	banner: { active: boolean; height: number; url: string };
 
@@ -36,7 +36,7 @@ export class Notebook extends BaseEntity {
 	@UpdateDateColumn()
 	updatedAt: Date;
 
-	@ManyToOne(() => Page, (page) => page.todos)
+	@ManyToOne(() => Page, (page) => page.todos, { onDelete: "CASCADE" })
 	page: Page;
 
 	@OneToMany(() => NotebookBlock, (notebookBlock) => notebookBlock.notebook)
