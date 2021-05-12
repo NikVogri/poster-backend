@@ -1,16 +1,14 @@
 import { Response, NextFunction, Request } from "express";
-import { UserRequest } from "../interfaces/expressInterface";
+import { UserRequest } from "../interfaces/express";
 import { Page } from "../database/entity/Page";
 import { User } from "../database/entity/User";
-import { PageType } from "../config/page";
+import { PageType } from "../interfaces/page";
 import { Notebook } from "../database/entity/Notebook";
 import { Todo } from "../database/entity/Todo";
 
 import BadRequestError from "../errors/BadRequestError";
 import NotFoundError from "../errors/NotFoundError";
 import ServerError from "../errors/ServerError";
-import { nextTick } from "process";
-import { TodoItem } from "../database/entity/TodoItem";
 
 export const getAll = async (
 	req: UserRequest,
@@ -230,7 +228,8 @@ export const remove = async (
 
 		res.send({ success: true });
 	} catch (err) {
-		return next(err);
+		console.log(err);
+		next(err);
 	}
 };
 

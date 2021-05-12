@@ -8,10 +8,10 @@ import "reflect-metadata";
 import cloudinary from "cloudinary";
 
 // routers
-import pageRouter from "./routes/pageRouter";
-import authRouter from "./routes/authRouter";
-import userRouter from "./routes/userRouter";
-import todoRouter from "./routes/todoRouter";
+import pageRouter from "./routes/page";
+import authRouter from "./routes/auth";
+import userRouter from "./routes/user";
+import todoRouter from "./routes/todo";
 
 import { __dev__, __prod__, __test__ } from "./config/environment";
 import { createConnection } from "typeorm";

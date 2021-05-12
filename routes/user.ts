@@ -1,5 +1,5 @@
 import express from "express";
-import avatarRouter from "./avatarRouter";
+import avatarRouter from "./avatar";
 
 const router = express.Router();
 

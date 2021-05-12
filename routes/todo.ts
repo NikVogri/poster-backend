@@ -1,5 +1,5 @@
 import express from "express";
-import * as todoController from "../controllers/todoController";
+import * as todoController from "../controllers/todo";
 import checkAuth from "../middleware/checkAuth";
 import onlyOwnerOrMember from "../middleware/onlyOwnerAndMembers";
 

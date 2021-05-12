@@ -1,5 +1,5 @@
 import { Page } from "../database/entity/Page";
-import { User } from "./userInterface";
+import { User } from "./user";
 
 export interface UserRequest extends Request {
 	user: User;

@@ -1,11 +1,11 @@
 import express from "express";
-import * as pageController from "../controllers/pageController";
+import * as pageController from "../controllers/page";
 import checkAuth from "../middleware/checkAuth";
 import onlyOwner from "../middleware/onlyOwner";
 
-import membersRouter from "./membersRouter";
-import todoRouter from "./todoRouter";
-import notebookRouter from "./notebookRouter";
+import membersRouter from "./members";
+import todoRouter from "./todo";
+import notebookRouter from "./notebook";
 
 import onlyOwnerAndMembers from "../middleware/onlyOwnerAndMembers";
 

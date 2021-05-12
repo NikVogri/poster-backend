@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import { generateUsernameSlug } from "../helpers/generateSlug";
+import { generateUsernameSlug } from "../lib/generateUsernameSlug";
 import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
-import { User as UserInterface } from "../interfaces/userInterface";
+import { User as UserInterface } from "../interfaces/user";
 import { User } from "../database/entity/User";
-import { sendEmail } from "../helpers/email";
+import { sendEmail } from "../lib/sendEmail";
 
 import BadRequestError from "../errors/BadRequestError";
 import ServerError from "../errors/ServerError";
 import UnauthorizedError from "../errors/UnauthorizedError";
-import Password from "../helpers/Password";
-import Token from "../helpers/token";
-import { UserRequest } from "../interfaces/expressInterface";
+import Password from "../lib/Password";
+import Token from "../lib/Token";
+import { UserRequest } from "../interfaces/express";
 import { nextTick } from "process";
 
 export const loginUser = async (

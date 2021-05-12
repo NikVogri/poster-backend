@@ -3,8 +3,8 @@ import ServerError from "../errors/ServerError";
 import BadRequestError from "../errors/BadRequestError";
 import { User } from "../database/entity/User";
 import { __test__ } from "../config/environment";
-import Image from "../helpers/Image";
-import { UserRequest } from "../interfaces/expressInterface";
+import Image from "../lib/Image";
+import { UserRequest } from "../interfaces/express";
 
 const MAX_IMAGE_SIZE = 1048576; // 1MB;
 
