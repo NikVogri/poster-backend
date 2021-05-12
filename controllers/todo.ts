@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from "express-serve-static-core";
 import { Page } from "../database/entity/Page";
-import { User } from "../database/entity/User";
-import { UserPageRequest, UserRequest } from "../interfaces/express";
-import BadRequestError from "../errors/BadRequestError";
-import NotFoundError from "../errors/NotFoundError";
+import { UserPageRequest } from "../interfaces/express";
+
 import { Todo } from "../database/entity/Todo";
-import ServerError from "../errors/ServerError";
 import { TodoItem } from "../database/entity/TodoItem";
 import { TodoItemUpdate } from "../interfaces/todo";
+
+import BadRequestError from "../errors/BadRequestError";
+import ServerError from "../errors/ServerError";
 
 export const addNewBlock = async (
 	req: UserPageRequest,
