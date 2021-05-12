@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express-serve-static-core";
 import { Page } from "../database/entity/Page";
 import { User } from "../database/entity/User";
-import { UserRequest } from "../interfaces/expressInterface";
+import { UserRequest } from "../interfaces/express";
+
 import BadRequestError from "../errors/BadRequestError";
 import NotFoundError from "../errors/NotFoundError";
 

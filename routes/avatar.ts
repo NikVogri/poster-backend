@@ -1,5 +1,5 @@
 import express from "express";
-import * as avatarController from "../controllers/avatarController";
+import * as avatarController from "../controllers/avatar";
 import multer from "multer";
 import checkAuth from "../middleware/checkAuth";
 

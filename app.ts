@@ -8,9 +8,10 @@ import "reflect-metadata";
 import cloudinary from "cloudinary";
 
 // routers
-import pageRouter from "./routes/pageRouter";
-import authRouter from "./routes/authRouter";
-import userRouter from "./routes/userRouter";
+import pageRouter from "./routes/page";
+import authRouter from "./routes/auth";
+import userRouter from "./routes/user";
+import todoRouter from "./routes/todo";
 
 import { __dev__, __prod__, __test__ } from "./config/environment";
 import { createConnection } from "typeorm";
@@ -109,17 +110,15 @@ const main = async () => {
 	app.use("/api/v1/pages", pageRouter);
 	app.use("/api/v1/auth", authRouter);
 	app.use("/api/v1/user", userRouter);
+	app.use("/api/v1/todo", todoRouter);
 
 	// ERROR HANDLER
 	app.use(errorHandler as any);
 
 	// ROOT
-	app.get(
-		"/",
-		(_, res): RequestHandler => {
-			return res.send("Welcome to pager API") as any;
-		}
-	);
+	app.get("/", (_, res): RequestHandler => {
+		return res.send("Welcome to pager API") as any;
+	});
 };
 main();
 

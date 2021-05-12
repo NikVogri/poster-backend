@@ -1,3 +1,8 @@
+export enum PageType {
+  Todo = "todo",
+  Notebook = "notebook",
+}; 
+
 export interface Page {
   id?: string;
   title: string;

@@ -6,8 +6,9 @@ import { Page } from "../database/entity/Page";
 import { createConnection, getConnection } from "typeorm";
 
 import path from "path";
+
 import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
-import { PageType } from "../config/page";
+import { PageType } from "../interfaces/page";
 import { Notebook } from "../database/entity/Notebook";
 import { NotebookBlock } from "../database/entity/NotebookBlock";
 import { Todo } from "../database/entity/Todo";

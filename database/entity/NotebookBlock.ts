@@ -35,7 +35,9 @@ export class NotebookBlock extends BaseEntity {
 	@UpdateDateColumn()
 	updatedAt: Date;
 
-	@ManyToOne(() => Notebook, (notebook) => notebook.blocks)
+	@ManyToOne(() => Notebook, (notebook) => notebook.blocks, {
+		onDelete: "CASCADE",
+	})
 	@JoinColumn({ name: "notebookId" })
 	notebook: Notebook;
 

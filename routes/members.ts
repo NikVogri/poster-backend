@@ -1,5 +1,5 @@
 import express from "express";
-import * as membershipController from "../controllers/membershipController";
+import * as membershipController from "../controllers/membership";
 import checkAuth from "../middleware/checkAuth";
 import onlyOwner from "../middleware/onlyOwner";
 import onlyMembers from "../middleware/onlyMembers";

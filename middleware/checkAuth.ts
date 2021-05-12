@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { User as UserInterface } from "../interfaces/userInterface";
+import { User as UserInterface } from "../interfaces/user";
 import { User } from "../database/entity/User";
 import UnauthorizedError from "../errors/UnauthorizedError";
 import ServerError from "../errors/ServerError";

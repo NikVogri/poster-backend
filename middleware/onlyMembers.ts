@@ -2,7 +2,7 @@ import { NextFunction, Response } from "express";
 import { Page } from "../database/entity/Page";
 import NotFoundError from "../errors/NotFoundError";
 import UnauthorizedError from "../errors/UnauthorizedError";
-import { UserRequest } from "../interfaces/expressInterface";
+import { UserRequest } from "../interfaces/express";
 
 interface PageRequest extends UserRequest {
 	page: null | {};
