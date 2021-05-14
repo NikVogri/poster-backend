@@ -86,6 +86,29 @@ export const updateBlock = async (
 	}
 };
 
+export const removeBlock = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const { todoId } = req.params;
+
+		const todo = await Todo.findOne({ id: todoId });
+
+		if (!todo) {
+			throw new BadRequestError("Todo not found");
+		}
+
+		await todo.remove();
+
+		res.status(200).send({ success: true, message: "Todo deleted" });
+	} catch (err) {
+		console.log(err);
+		next(err);
+	}
+};
+
 export const addTask = async (
 	req: Request,
 	res: Response,
