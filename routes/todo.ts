@@ -18,6 +18,13 @@ router.put(
 	todoController.updateBlock as any
 );
 
+router.delete(
+	"/:todoId",
+	checkAuth,
+	onlyOwnerOrMember as any,
+	todoController.removeBlock as any
+);
+
 router.post(
 	"/:todoId/task",
 	checkAuth,
