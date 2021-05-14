@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import { generateUsernameSlug } from "../lib/generateUsernameSlug";
 import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
-import { User as UserInterface } from "../interfaces/user";
-import { User } from "../database/entity/User";
+
 import { sendEmail } from "../lib/sendEmail";
+import { UserRequest } from "../interfaces/express";
+import { User } from "../database/entity/User";
 
 import BadRequestError from "../errors/BadRequestError";
 import ServerError from "../errors/ServerError";
 import UnauthorizedError from "../errors/UnauthorizedError";
 import Password from "../lib/Password";
 import Token from "../lib/Token";
-import { UserRequest } from "../interfaces/express";
-import { nextTick } from "process";
+import { validateInput } from "../lib/validateInput";
 
 export const loginUser = async (
 	req: UserRequest,
@@ -20,6 +20,20 @@ export const loginUser = async (
 ) => {
 	try {
 		const { email, password } = req.body;
+
+		validateInput(req, {
+			email: {
+				type: "email",
+				required: true,
+				failMessage: "Please provide email address",
+			},
+			password: {
+				type: "password",
+				required: true,
+				failMessage: "Please provide password",
+			},
+		});
+
 		const user = await User.createQueryBuilder("user")
 			.where({ email })
 			.addSelect("user.password")
