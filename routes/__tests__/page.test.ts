@@ -1,6 +1,7 @@
 import supertest from "supertest";
 import app from "../../app";
 import { Page, PageType } from "../../database/entity/Page";
+import { Todo } from "../../database/entity/Todo";
 import { loginUser, createPage, createUser } from "../../tests/setup";
 
 const request = supertest(app);
@@ -24,6 +25,7 @@ it("/ -> can create todo page when logged in", async () => {
 
 	expect(page!.title).toEqual(pageTitle);
 });
+
 it("/ -> can create notebook page when logged in", async () => {
 	const pageTitle = "my new page";
 	await request
@@ -172,7 +174,6 @@ it("/:slug returns single page to owner", async () => {
 		{ relations: ["owner"] }
 	);
 
-	console.log(res.body.page);
 	expect(freshPage!.title).toEqual(pageTitle);
 	expect(freshPage!.owner.email).toEqual(ownerEmail);
 });
@@ -198,3 +199,98 @@ it("/:slug returns a 403 if the user is not a member or owner and the page is pr
 		.send()
 		.expect(403);
 });
+
+it("/:id/todos returns all todo blocks", async () => {
+	const janesCookie = await loginUser("jane", "jane@jane.com");
+	const page: Page = await createPage(
+		"janes page",
+		janesCookie,
+		true,
+		PageType.todo
+	);
+
+	const firstTodoBlock = {
+		title: "my first todo block",
+		headerColor: "#fff",
+	};
+	const secondTodoBlock = {
+		title: "my second todo block",
+		headerColor: "#000",
+	};
+
+	await request
+		.post(`/api/v1/pages/${page.id}/todos`)
+		.set("Cookie", janesCookie)
+		.send(firstTodoBlock)
+		.expect(201);
+
+	await request
+		.post(`/api/v1/pages/${page.id}/todos`)
+		.set("Cookie", janesCookie)
+		.send(secondTodoBlock)
+		.expect(201);
+
+	const res = await request
+		.get(`/api/v1/pages/${page.id}/todos`)
+		.set("Cookie", janesCookie)
+		.send()
+		.expect(200);
+
+	const todoBlocks = res.body;
+	expect(todoBlocks.length).toEqual(3); // 2 created + 1 auto generated todo block
+
+	expect(
+		todoBlocks.some(({ title }) => title === firstTodoBlock.title)
+	).toBeTruthy();
+
+	expect(
+		todoBlocks.some(({ title }) => title === secondTodoBlock.title)
+	).toBeTruthy();
+
+	expect(
+		todoBlocks.some(({ title }) => title === "My todo block") // default auto-generated todo block
+	).toBeTruthy();
+});
+
+it("/ sets default banner values", async () => {
+	const pageTitle = "my new page";
+	await request
+		.post("/api/v1/pages")
+		.set("Cookie", await loginUser())
+		.send({ title: pageTitle, isPrivate: false, type: PageType.notebook })
+		.expect(201);
+
+	const page = await Page.findOne();
+
+	expect(page!.banner).toEqual({ active: false, height: 0, url: "" });
+});
+
+it("/:id/update-banner updates banner for todo page", async () => {
+	const pageTitle = "my new page";
+	const ownerCookie = await loginUser();
+	const imageUrl = "https://www.image-link.com/image";
+
+	await request
+		.post("/api/v1/pages")
+		.set("Cookie", ownerCookie)
+		.send({ title: pageTitle, isPrivate: false, type: PageType.todo })
+		.expect(201);
+
+	let page = (await Page.findOne()) as Page;
+
+	expect(page.banner).toEqual({ active: false, height: 0, url: "" });
+
+	await request
+		.put(`/api/v1/pages/${page.id}/update-banner`)
+		.set("Cookie", ownerCookie)
+		.send({
+			url: imageUrl,
+		})
+		.expect(200);
+
+	await page.reload();
+
+	expect(page.banner.url).toEqual(imageUrl);
+});
+
+// TODO: update banner test for notebooks
