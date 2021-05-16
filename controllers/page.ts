@@ -274,7 +274,6 @@ export const updateBanner = async (
 		}
 
 		const page: Page = (req as any).page;
-		console.log(page);
 
 		if (page.type === PageType.Notebook) {
 			if (!notebookId) {

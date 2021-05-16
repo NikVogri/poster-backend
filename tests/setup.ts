@@ -8,7 +8,7 @@ import { createConnection, getConnection } from "typeorm";
 import path from "path";
 
 import { ForgotPasswordToken } from "../database/entity/ForgotPasswordToken";
-import { PageType } from "../interfaces/page";
+import { PageType } from "../database/entity/Page";
 import { Notebook } from "../database/entity/Notebook";
 import { NotebookBlock } from "../database/entity/NotebookBlock";
 import { Todo } from "../database/entity/Todo";
@@ -66,7 +66,7 @@ export const createPage = async (
 	title: string,
 	cookie?: string,
 	isPrivate: boolean = false,
-	type: string = PageType.Notebook
+	type: string = PageType.notebook
 ): Promise<any> => {
 	const res = await request(app)
 		.post("/api/v1/pages")
